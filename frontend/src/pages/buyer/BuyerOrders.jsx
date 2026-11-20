@@ -8,7 +8,9 @@ import {
   Clock, 
   CheckCircle2, 
   MessageSquarePlus, 
-  AlertCircle 
+  AlertCircle,
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { api, formatUGX } from '../../services/api';
 import RatingStars from '../../components/RatingStars';
@@ -17,6 +19,10 @@ export default function BuyerOrders({ onToast }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
+
+  // Confirmation Dialog State
+  const [orderToConfirm, setOrderToConfirm] = useState(null);
+  const [confirming, setConfirming] = useState(false);
 
   // Review Modal State
   const [selectedOrderForReview, setSelectedOrderForReview] = useState(null);
@@ -42,19 +48,25 @@ export default function BuyerOrders({ onToast }) {
     loadOrders();
   }, []);
 
-  const handleConfirmReceipt = async (orderId) => {
-    if (!window.confirm('Have you physically received all items in this order on campus?')) {
-      return;
-    }
+  // Process confirmation after dialog button clicked
+  const handleConfirmOrderReceipt = async () => {
+    if (!orderToConfirm) return;
 
     try {
-      const res = await api.updateOrderStatus(orderId, 'Completed');
+      setConfirming(true);
+      const res = await api.updateOrderStatus(orderToConfirm.id, 'Completed');
       if (res.success) {
         if (onToast) onToast('Order marked as Completed! You can now rate the seller.', 'success');
+        const confirmedOrder = orderToConfirm;
+        setOrderToConfirm(null);
         await loadOrders();
+        // Automatically prompt review modal
+        setSelectedOrderForReview(confirmedOrder);
       }
     } catch (err) {
-      if (onToast) onToast('Failed to update order.', 'error');
+      if (onToast) onToast(err.message || 'Failed to complete order.', 'error');
+    } finally {
+      setConfirming(false);
     }
   };
 
@@ -89,6 +101,7 @@ export default function BuyerOrders({ onToast }) {
   const filteredOrders = orders.filter((o) => {
     if (filter === 'All') return true;
     if (filter === 'Active') return o.order_status !== 'Completed' && o.order_status !== 'Cancelled';
+    if (filter === 'Ready') return o.order_status === 'Ready for Pickup';
     if (filter === 'Completed') return o.order_status === 'Completed';
     return true;
   });
@@ -107,20 +120,20 @@ export default function BuyerOrders({ onToast }) {
             <span>Back to Dashboard</span>
           </Link>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            My Purchases & Orders
+            My Orders & Purchases
           </h1>
           <p className="text-xs text-slate-500">
-            Track active handovers, confirm receipt of items, and rate your sellers
+            Track pickup progress, confirm physical item collection, and review sellers
           </p>
         </div>
 
-        {/* Status Filter Tabs */}
+        {/* Filters */}
         <div className="flex p-1 bg-slate-100 rounded-2xl self-start sm:self-auto">
-          {['All', 'Active', 'Completed'].map((tab) => (
+          {['All', 'Active', 'Ready', 'Completed'].map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filter === tab
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
@@ -134,9 +147,9 @@ export default function BuyerOrders({ onToast }) {
 
       {/* Orders List */}
       {loading ? (
-        <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center">
+        <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center shadow-sm">
           <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-500">Loading your purchases...</p>
+          <p className="text-xs text-slate-500">Loading your purchase history...</p>
         </div>
       ) : filteredOrders.length > 0 ? (
         <div className="space-y-6">
@@ -145,7 +158,7 @@ export default function BuyerOrders({ onToast }) {
               key={order.id}
               className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm space-y-5"
             >
-              {/* Order Top Bar */}
+              {/* Order Meta Header */}
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <div className="flex items-center space-x-2">
@@ -166,6 +179,8 @@ export default function BuyerOrders({ onToast }) {
                   <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase border ${
                     order.order_status === 'Completed'
                       ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                      : order.order_status === 'Ready for Pickup'
+                      ? 'bg-amber-100 text-amber-800 border-amber-200 animate-pulse'
                       : 'bg-blue-100 text-blue-800 border-blue-200'
                   }`}>
                     {order.order_status}
@@ -209,21 +224,25 @@ export default function BuyerOrders({ onToast }) {
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pt-3 border-t border-slate-100">
                 <div className="text-xs text-slate-500">
                   Total Paid: <strong className="text-sm font-black text-slate-900 ml-1">{formatUGX(order.total_amount)}</strong>
+                  <span className="text-slate-400 ml-2">via {order.payment_method}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
+                  
+                  {/* CONFIRM PICKUP BUTTON: Only active when Ready for Pickup */}
                   {order.order_status === 'Ready for Pickup' && (
                     <button
-                      onClick={() => handleConfirmReceipt(order.id)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors"
+                      onClick={() => setOrderToConfirm(order)}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center space-x-1.5 animate-bounce"
                     >
-                      Confirm Item Received
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>CONFIRM PICKUP</span>
                     </button>
                   )}
 
                   {order.order_status === 'Completed' && (
                     order.review ? (
-                      <div className="flex items-center space-x-1.5 text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                      <div className="flex items-center space-x-1.5 text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 font-semibold">
                         <Star className="w-3.5 h-3.5 fill-amber-400" />
                         <span>Reviewed ({order.review.rating}/5 Stars)</span>
                       </div>
@@ -237,6 +256,12 @@ export default function BuyerOrders({ onToast }) {
                       </button>
                     )
                   )}
+
+                  {order.order_status !== 'Ready for Pickup' && order.order_status !== 'Completed' && (
+                    <span className="text-xs text-slate-400 italic">
+                      Awaiting seller handover preparation...
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -248,72 +273,129 @@ export default function BuyerOrders({ onToast }) {
           <Package className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="font-bold text-slate-900 text-sm">No {filter.toLowerCase()} purchases found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            You don't have any orders matching this filter. Explore campus marketplace listings now!
+            You currently have no orders in this category. Browse the marketplace catalog to discover items from fellow students.
           </p>
           <Link
             to="/products"
-            className="inline-flex items-center px-5 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-blue-600"
+            className="inline-block px-5 py-2.5 bg-brand-blue text-white text-xs font-bold rounded-xl shadow-md"
           >
-            Explore Marketplace
+            Explore Campus Marketplace
           </Link>
         </div>
       )}
 
-      {/* Review Submission Modal Dialog */}
+      {/* REQUIRED CONFIRMATION DIALOG */}
+      {orderToConfirm && (
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-5 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center space-x-2 text-emerald-600">
+                <CheckCircle2 className="w-6 h-6" />
+                <h3 className="font-bold text-slate-900 text-base">Confirm Physical Item Collection</h3>
+              </div>
+              <button
+                onClick={() => setOrderToConfirm(null)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
+              "Have you physically received your order? Confirming this action will mark the transaction as completed."
+            </div>
+
+            <div className="text-[11px] text-slate-500 space-y-1">
+              <p>• Order Reference: <strong>{orderToConfirm.order_ref}</strong></p>
+              <p>• Handover Location: <strong>{orderToConfirm.pickup_location}</strong></p>
+              <p className="text-emerald-700 font-semibold pt-1">
+                Once confirmed, the order will be locked as Completed, and you can submit feedback and seller ratings.
+              </p>
+            </div>
+
+            {/* Exactly the two required buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button
+                type="button"
+                disabled={confirming}
+                onClick={handleConfirmOrderReceipt}
+                className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition-all text-center disabled:opacity-70"
+              >
+                {confirming ? 'Completing...' : 'Yes, I Have Received My Order.'}
+              </button>
+              <button
+                type="button"
+                disabled={confirming}
+                onClick={() => setOrderToConfirm(null)}
+                className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Modal Dialog */}
       {selectedOrderForReview && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-slate-200 shadow-2xl space-y-5">
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="font-black text-slate-900 text-base">Rate Your Campus Seller</h3>
+                <h3 className="font-bold text-slate-900 text-base">Rate & Review Seller</h3>
                 <p className="text-xs text-slate-400">Order: {selectedOrderForReview.order_ref}</p>
               </div>
               <button
                 onClick={() => setSelectedOrderForReview(null)}
-                className="text-slate-400 hover:text-slate-600 text-lg font-bold"
+                className="text-slate-400 hover:text-slate-600 p-1"
               >
-                ×
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleReviewSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 text-center">
-                  Select Rating (1 to 5 Stars)
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                  Overall Experience (1 to 5 Stars)
                 </label>
-                <div className="flex justify-center py-2">
-                  <RatingStars rating={rating} onChange={setRating} interactive size="lg" />
+                <div className="flex items-center space-x-2">
+                  <RatingStars
+                    rating={rating}
+                    interactive
+                    onChange={(r) => setRating(r)}
+                  />
+                  <span className="text-sm font-black text-brand-orange ml-2">{rating} / 5 Stars</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Your Review Feedback
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Review Comment
                 </label>
                 <textarea
                   rows={4}
                   required
+                  placeholder="Share details about item condition, punctuality at the pickup spot, and seller communication..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Tell other UCU students about the item condition, punctuality at the pickup spot, and communication..."
-                  className="w-full p-3 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-blue focus:outline-none"
+                  className="w-full p-3 rounded-2xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-brand-orange"
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="submit"
-                  disabled={submittingReview}
-                  className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-md transition-colors"
-                >
-                  {submittingReview ? 'Submitting...' : 'Post Review'}
-                </button>
+              <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setSelectedOrderForReview(null)}
-                  className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl"
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700"
                 >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="px-5 py-2.5 bg-brand-orange hover:bg-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md transition-all disabled:opacity-70"
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Seller Review'}
                 </button>
               </div>
             </form>

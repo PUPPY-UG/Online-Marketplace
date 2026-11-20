@@ -12,6 +12,8 @@ USE `unitrade_db`;
 -- Disable foreign key checks during schema rebuild
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `otp_verifications`;
+DROP TABLE IF EXISTS `email_notifications`;
 DROP TABLE IF EXISTS `reviews`;
 DROP TABLE IF EXISTS `payments`;
 DROP TABLE IF EXISTS `order_items`;
@@ -24,16 +26,18 @@ DROP TABLE IF EXISTS `users`;
 -- --------------------------------------------------------------------
 -- 1. USERS TABLE
 -- Stores buyers, sellers, and system administrators
+-- Password is required for admin; buyers/sellers authenticate via OTP
 -- --------------------------------------------------------------------
 CREATE TABLE `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `full_name` VARCHAR(150) NOT NULL,
   `email` VARCHAR(150) NOT NULL UNIQUE,
-  `password` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NULL, -- Hashed with bcrypt for admin, NULL/optional for OTP users
   `phone` VARCHAR(50) NOT NULL,
   `role` ENUM('buyer', 'seller', 'admin') NOT NULL DEFAULT 'buyer',
   `campus_residence` VARCHAR(150) DEFAULT 'Main Campus (Mukono)',
   `student_id` VARCHAR(50) DEFAULT NULL,
+  `email_verified` BOOLEAN NOT NULL DEFAULT FALSE,
   `status` ENUM('active', 'deactivated') NOT NULL DEFAULT 'active',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -97,24 +101,29 @@ CREATE TABLE `cart_items` (
 -- --------------------------------------------------------------------
 -- 5. ORDERS TABLE
 -- Orders placed by buyers for campus pickup
+-- Includes compulsory buyer email, ready_for_pickup and completed dates
 -- --------------------------------------------------------------------
 CREATE TABLE `orders` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_ref` VARCHAR(50) NOT NULL UNIQUE,
   `buyer_id` INT NOT NULL,
+  `buyer_email` VARCHAR(150) NOT NULL,
   `total_amount` DECIMAL(12, 2) NOT NULL,
-  `order_status` ENUM('Pending', 'Paid', 'Ready for Pickup', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending',
-  `payment_status` ENUM('Unpaid', 'Paid', 'Refunded') NOT NULL DEFAULT 'Unpaid',
-  `payment_method` VARCHAR(100) NOT NULL DEFAULT 'Mobile Money (Simulation)',
+  `order_status` ENUM('Pending Payment', 'Paid', 'Accepted', 'Preparing', 'Ready for Pickup', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Paid',
+  `payment_status` ENUM('Unpaid', 'Paid', 'Refunded', 'Pending') NOT NULL DEFAULT 'Paid',
+  `payment_method` VARCHAR(100) NOT NULL DEFAULT 'MTN Mobile Money',
   `pickup_location` VARCHAR(255) NOT NULL,
   `buyer_name` VARCHAR(150) NOT NULL,
   `buyer_phone` VARCHAR(50) NOT NULL,
   `notes` TEXT NULL,
+  `ready_for_pickup_date` DATETIME NULL,
+  `completed_date` DATETIME NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`buyer_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   INDEX `idx_orders_ref` (`order_ref`),
   INDEX `idx_orders_buyer` (`buyer_id`),
+  INDEX `idx_orders_email` (`buyer_email`),
   INDEX `idx_orders_status` (`order_status`),
   INDEX `idx_orders_payment_status` (`payment_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -140,13 +149,14 @@ CREATE TABLE `order_items` (
 
 -- --------------------------------------------------------------------
 -- 7. PAYMENTS TABLE
--- Simulated campus payment records (Mobile Money & Cash on Pickup)
+-- Campus payment records: MTN Mobile Money, Airtel Money, PayPal
 -- --------------------------------------------------------------------
 CREATE TABLE `payments` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_id` INT NOT NULL UNIQUE,
   `transaction_ref` VARCHAR(100) NOT NULL UNIQUE,
   `amount` DECIMAL(12, 2) NOT NULL,
+  `currency` VARCHAR(10) NOT NULL DEFAULT 'UGX',
   `payment_method` VARCHAR(100) NOT NULL,
   `phone_number` VARCHAR(50) NULL,
   `network_provider` VARCHAR(50) NULL,
@@ -159,7 +169,42 @@ CREATE TABLE `payments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------------------
--- 8. REVIEWS TABLE
+-- 8. EMAIL NOTIFICATIONS TABLE
+-- Logs automated campus email notifications (Ready for Pickup, OTP, etc.)
+-- --------------------------------------------------------------------
+CREATE TABLE `email_notifications` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `order_id` INT NULL,
+  `recipient_email` VARCHAR(150) NOT NULL,
+  `notification_type` VARCHAR(50) NOT NULL, -- e.g. 'READY_FOR_PICKUP', 'OTP', 'ORDER_CONFIRMATION'
+  `delivery_status` ENUM('Sent', 'Failed', 'Pending') NOT NULL DEFAULT 'Sent',
+  `sent_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `error_message` TEXT NULL,
+  FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE SET NULL,
+  INDEX `idx_email_order` (`order_id`),
+  INDEX `idx_email_recipient` (`recipient_email`),
+  INDEX `idx_email_type` (`notification_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------------------
+-- 9. OTP VERIFICATIONS TABLE
+-- Stores hashed one-time passwords for passwordless email login/registration
+-- --------------------------------------------------------------------
+CREATE TABLE `otp_verifications` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NULL,
+  `email` VARCHAR(150) NOT NULL,
+  `otp_hash` VARCHAR(255) NOT NULL,
+  `expiry_time` DATETIME NOT NULL,
+  `verified_status` BOOLEAN NOT NULL DEFAULT FALSE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_otp_email` (`email`),
+  INDEX `idx_otp_expiry` (`expiry_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------------------
+-- 10. REVIEWS TABLE
 -- Seller ratings and reviews left by buyers after completed orders
 -- --------------------------------------------------------------------
 CREATE TABLE `reviews` (

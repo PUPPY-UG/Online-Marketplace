@@ -9,6 +9,7 @@
       "role": "admin",
       "campus_residence": "Main Campus Administration Building",
       "student_id": "ADM/UCU/001",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-01 08:00:00"
     },
@@ -21,6 +22,7 @@
       "role": "seller",
       "campus_residence": "Agape Hall, Block B, Room 204",
       "student_id": "S22/BBA/045",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-02 09:30:00"
     },
@@ -33,6 +35,7 @@
       "role": "seller",
       "campus_residence": "Soba Hostel, Room 14",
       "student_id": "S21/BCS/112",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-02 11:15:00"
     },
@@ -45,6 +48,7 @@
       "role": "seller",
       "campus_residence": "Bishop Tucker Hall, Room 12",
       "student_id": "S23/LAW/088",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-03 14:00:00"
     },
@@ -57,6 +61,7 @@
       "role": "buyer",
       "campus_residence": "Sabiti Hall, Room 108",
       "student_id": "S24/BSIT/019",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-04 10:00:00"
     },
@@ -69,6 +74,7 @@
       "role": "buyer",
       "campus_residence": "Allan Galpin Hall, Room 305",
       "student_id": "S23/BCOM/210",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-05 13:45:00"
     },
@@ -81,8 +87,33 @@
       "role": "buyer",
       "campus_residence": "Bugujju Off-Campus Residency",
       "student_id": "S22/BENG/074",
+      "email_verified": true,
       "status": "active",
       "created_at": "2026-11-06 16:20:00"
+    },
+    {
+      "id": 8,
+      "full_name": "Test UCU Buyer",
+      "email": "test.student.1795138143101@ucu.ac.ug",
+      "password": null,
+      "phone": "+256 771 998877",
+      "role": "buyer",
+      "campus_residence": "Sabiti Hall",
+      "student_id": null,
+      "status": "active",
+      "created_at": "2026-11-20T01:29:03.149Z"
+    },
+    {
+      "id": 9,
+      "full_name": "Test UCU Buyer",
+      "email": "test.student.1795138282610@ucu.ac.ug",
+      "password": null,
+      "phone": "+256 771 998877",
+      "role": "buyer",
+      "campus_residence": "Sabiti Hall",
+      "student_id": null,
+      "status": "active",
+      "created_at": "2026-11-20T01:31:22.636Z"
     }
   ],
   "items": [
@@ -319,6 +350,19 @@
       "is_available": true,
       "status": "active",
       "created_at": "2026-11-14 11:00:00"
+    },
+    {
+      "id": 19,
+      "seller_id": 2,
+      "title": "Automated Test: Financial Accounting Volume 2 (Revised)",
+      "description": "Updated price for campus clearance.",
+      "price": 32000,
+      "category": "Textbooks and Academic Materials",
+      "condition_state": "Used",
+      "image_url": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600",
+      "is_available": true,
+      "status": "active",
+      "created_at": "2026-11-20T01:31:23.375Z"
     }
   ],
   "orders": [
@@ -326,14 +370,17 @@
       "id": 1,
       "order_ref": "ORD-UCU-2026-001",
       "buyer_id": 5,
+      "buyer_email": "brian.buyer@ucu.ac.ug",
       "total_amount": 45000,
       "order_status": "Completed",
       "payment_status": "Paid",
-      "payment_method": "Mobile Money (MTN MoMo)",
+      "payment_method": "MTN Mobile Money",
       "pickup_location": "Main Library Entrance (Hamu Mukasa Library)",
       "buyer_name": "Brian Okello",
       "buyer_phone": "+256 774 332211",
       "notes": "Please bring it near the security desk.",
+      "ready_for_pickup_date": "2026-11-15 13:00:00",
+      "completed_date": "2026-11-15 15:40:00",
       "created_at": "2026-11-15 11:20:00",
       "updated_at": "2026-11-15 15:40:00"
     },
@@ -341,14 +388,17 @@
       "id": 2,
       "order_ref": "ORD-UCU-2026-002",
       "buyer_id": 6,
+      "buyer_email": "sarah.buyer@ucu.ac.ug",
       "total_amount": 75000,
       "order_status": "Ready for Pickup",
       "payment_status": "Paid",
-      "payment_method": "Mobile Money (Airtel Money)",
+      "payment_method": "Airtel Money",
       "pickup_location": "UCU Guild Canteen / Tech Park",
       "buyer_name": "Sarah Namubiru",
       "buyer_phone": "+256 705 667788",
       "notes": "Available after 2:00 PM lecture.",
+      "ready_for_pickup_date": "2026-11-16 12:30:00",
+      "completed_date": null,
       "created_at": "2026-11-16 10:05:00",
       "updated_at": "2026-11-16 12:30:00"
     },
@@ -356,16 +406,37 @@
       "id": 3,
       "order_ref": "ORD-UCU-2026-003",
       "buyer_id": 7,
+      "buyer_email": "david.buyer@ucu.ac.ug",
       "total_amount": 95000,
-      "order_status": "Completed",
+      "order_status": "Preparing",
       "payment_status": "Paid",
-      "payment_method": "Cash on Pickup (Simulation)",
+      "payment_method": "PayPal",
       "pickup_location": "Nkoyoyo Hall Steps",
       "buyer_name": "David Mukasa",
       "buyer_phone": "+256 786 554433",
-      "notes": "Will pay in cash upon inspecting the power bank.",
+      "notes": "Please keep original box.",
+      "ready_for_pickup_date": null,
+      "completed_date": null,
       "created_at": "2026-11-17 14:15:00",
-      "updated_at": "2026-11-17 16:50:00"
+      "updated_at": "2026-11-17 14:15:00"
+    },
+    {
+      "id": 4,
+      "order_ref": "ORD-UCU-2026-91253",
+      "buyer_id": 5,
+      "buyer_email": "brian.buyer@ucu.ac.ug",
+      "total_amount": 240000,
+      "order_status": "Completed",
+      "payment_status": "Paid",
+      "payment_method": "MTN Mobile Money",
+      "pickup_location": "Hamu Mukasa Main Library Steps",
+      "buyer_name": "Brian Okello",
+      "buyer_phone": "+256 774 332211",
+      "notes": "Please meet outside Hamu Mukasa Library.",
+      "ready_for_pickup_date": "2026-11-20T01:31:23.448Z",
+      "completed_date": "2026-11-20T01:31:23.500Z",
+      "created_at": "2026-11-20T01:31:23.416Z",
+      "updated_at": "2026-11-20T01:31:23.500Z"
     }
   ],
   "order_items": [
@@ -395,15 +466,43 @@
       "price": 95000,
       "quantity": 1,
       "created_at": "2026-11-17 14:15:00"
+    },
+    {
+      "id": 4,
+      "order_id": 4,
+      "item_id": 6,
+      "seller_id": 2,
+      "price": 160000,
+      "quantity": 1,
+      "created_at": "2026-11-20T01:31:23.418Z"
+    },
+    {
+      "id": 5,
+      "order_id": 4,
+      "item_id": 17,
+      "seller_id": 2,
+      "price": 48000,
+      "quantity": 1,
+      "created_at": "2026-11-20T01:31:23.420Z"
+    },
+    {
+      "id": 6,
+      "order_id": 4,
+      "item_id": 19,
+      "seller_id": 2,
+      "price": 32000,
+      "quantity": 1,
+      "created_at": "2026-11-20T01:31:23.421Z"
     }
   ],
   "payments": [
     {
       "id": 1,
       "order_id": 1,
-      "transaction_ref": "MOMO-SIM-98231",
+      "transaction_ref": "MTN-MOMO-98231",
       "amount": 45000,
-      "payment_method": "Mobile Money (MTN MoMo)",
+      "currency": "UGX",
+      "payment_method": "MTN Mobile Money",
       "phone_number": "+256774332211",
       "network_provider": "MTN Uganda",
       "status": "Successful",
@@ -413,9 +512,10 @@
     {
       "id": 2,
       "order_id": 2,
-      "transaction_ref": "AIRTEL-SIM-45210",
+      "transaction_ref": "AIRTEL-MOMO-45210",
       "amount": 75000,
-      "payment_method": "Mobile Money (Airtel Money)",
+      "currency": "UGX",
+      "payment_method": "Airtel Money",
       "phone_number": "+256705667788",
       "network_provider": "Airtel Uganda",
       "status": "Successful",
@@ -425,14 +525,158 @@
     {
       "id": 3,
       "order_id": 3,
-      "transaction_ref": "CASH-SIM-12904",
+      "transaction_ref": "PAYPAL-CAP-12904",
       "amount": 95000,
-      "payment_method": "Cash on Pickup (Simulation)",
-      "phone_number": "+256786554433",
-      "network_provider": "Cash",
+      "currency": "UGX",
+      "payment_method": "PayPal",
+      "phone_number": null,
+      "network_provider": "PayPal Sandbox",
       "status": "Successful",
       "is_simulated": true,
-      "paid_at": "2026-11-17 16:45:00"
+      "paid_at": "2026-11-17 14:16:00"
+    },
+    {
+      "id": 4,
+      "order_id": 4,
+      "transaction_ref": "MTN-MOMO-268907",
+      "amount": 240000,
+      "currency": "UGX",
+      "payment_method": "MTN Mobile Money",
+      "phone_number": "+256 774 332211",
+      "network_provider": "MTN Uganda",
+      "status": "Successful",
+      "is_simulated": true,
+      "paid_at": "2026-11-20T01:31:23.423Z"
+    }
+  ],
+  "email_notifications": [
+    {
+      "id": 1,
+      "order_id": 2,
+      "recipient_email": "sarah.buyer@ucu.ac.ug",
+      "notification_type": "READY_FOR_PICKUP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-16 12:30:00",
+      "error_message": null
+    },
+    {
+      "id": 2,
+      "order_id": null,
+      "recipient_email": "test.student.1795138143101@ucu.ac.ug",
+      "notification_type": "OTP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:29:03.294Z",
+      "error_message": null
+    },
+    {
+      "id": 3,
+      "order_id": null,
+      "recipient_email": "brian.buyer@ucu.ac.ug",
+      "notification_type": "OTP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:29:03.420Z",
+      "error_message": null
+    },
+    {
+      "id": 4,
+      "order_id": null,
+      "recipient_email": "grace.seller@ucu.ac.ug",
+      "notification_type": "OTP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:29:03.548Z",
+      "error_message": null
+    },
+    {
+      "id": 5,
+      "order_id": null,
+      "recipient_email": "test.student.1795138282610@ucu.ac.ug",
+      "notification_type": "OTP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:31:22.770Z",
+      "error_message": null
+    },
+    {
+      "id": 6,
+      "order_id": null,
+      "recipient_email": "brian.buyer@ucu.ac.ug",
+      "notification_type": "OTP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:31:22.891Z",
+      "error_message": null
+    },
+    {
+      "id": 7,
+      "order_id": null,
+      "recipient_email": "grace.seller@ucu.ac.ug",
+      "notification_type": "OTP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:31:23.123Z",
+      "error_message": null
+    },
+    {
+      "id": 8,
+      "order_id": 4,
+      "recipient_email": "brian.buyer@ucu.ac.ug",
+      "notification_type": "READY_FOR_PICKUP",
+      "delivery_status": "Sent",
+      "sent_date": "2026-11-20T01:31:23.485Z",
+      "error_message": null
+    }
+  ],
+  "otp_verifications": [
+    {
+      "id": 1,
+      "user_id": 8,
+      "email": "test.student.1795138143101@ucu.ac.ug",
+      "otp_hash": "$2a$10$91/X6rXg.tUM20lmR5CeTezcMZe8XcyKbyHDkCS6z1FMGYOO6kr.u",
+      "expiry_time": "2026-11-20 01:39:03",
+      "verified_status": false,
+      "created_at": "2026-11-20T01:29:03.291Z"
+    },
+    {
+      "id": 2,
+      "user_id": 5,
+      "email": "brian.buyer@ucu.ac.ug",
+      "otp_hash": "$2a$10$rRae9bvbekjF9z6zU4XJQuj19bPxuv1LnT7MPRapavfd0WD0ItiCm",
+      "expiry_time": "2026-11-20 01:39:03",
+      "verified_status": false,
+      "created_at": "2026-11-20T01:29:03.418Z"
+    },
+    {
+      "id": 3,
+      "user_id": 2,
+      "email": "grace.seller@ucu.ac.ug",
+      "otp_hash": "$2a$10$5g0nJ3uzZXZByt2Qf2A5CObZnwhMI6NLRcXeBVQGJFrylMN2fmlF6",
+      "expiry_time": "2026-11-20 01:39:03",
+      "verified_status": false,
+      "created_at": "2026-11-20T01:29:03.545Z"
+    },
+    {
+      "id": 4,
+      "user_id": 9,
+      "email": "test.student.1795138282610@ucu.ac.ug",
+      "otp_hash": "$2a$10$r0gUBNezwUTN702Q1M4E0.1OHhZxUe8Vd8Rah5ek0zghd.Fl8RZN6",
+      "expiry_time": "2026-11-20T01:41:22.767Z",
+      "verified_status": false,
+      "created_at": "2026-11-20T01:31:22.768Z"
+    },
+    {
+      "id": 5,
+      "user_id": 5,
+      "email": "brian.buyer@ucu.ac.ug",
+      "otp_hash": "$2a$10$1plVx5k3Sf1WSS25nmrxTeGRyk/IW1ESaWpR7JFIMwxXWQ.BGAc0m",
+      "expiry_time": "2026-11-20T01:41:22.887Z",
+      "verified_status": true,
+      "created_at": "2026-11-20T01:31:22.888Z"
+    },
+    {
+      "id": 6,
+      "user_id": 2,
+      "email": "grace.seller@ucu.ac.ug",
+      "otp_hash": "$2a$10$ZdaEsbSuPUxewwGiJgmEveC4efQNhrZsXck2JJH1gAMCaLdje0YtW",
+      "expiry_time": "2026-11-20T01:41:23.119Z",
+      "verified_status": true,
+      "created_at": "2026-11-20T01:31:23.120Z"
     }
   ],
   "reviews": [
@@ -453,6 +697,15 @@
       "rating": 5,
       "comment": "Fiona was very responsive. The Anker power bank is brand new and charges my phone super fast!",
       "created_at": "2026-11-17 17:10:00"
+    },
+    {
+      "id": 3,
+      "order_id": 4,
+      "buyer_id": 5,
+      "seller_id": 2,
+      "rating": 5,
+      "comment": "Excellent service! Picked up at Hamu Mukasa Library on time.",
+      "created_at": "2026-11-20T01:31:23.521Z"
     }
   ],
   "cart": [
@@ -468,24 +721,19 @@
     },
     {
       "id": 3,
-      "user_id": 1,
-      "created_at": "2026-11-19T23:23:52.774Z"
-    }
-  ],
-  "cart_items": [
-    {
-      "id": 1,
-      "cart_id": 1,
-      "item_id": 6,
-      "quantity": 1,
-      "created_at": "2026-11-18 10:05:00"
+      "user_id": 8,
+      "created_at": "2026-11-20T01:29:03.152Z"
     },
     {
-      "id": 2,
-      "cart_id": 1,
-      "item_id": 17,
-      "quantity": 1,
-      "created_at": "2026-11-18 10:10:00"
+      "id": 4,
+      "user_id": 9,
+      "created_at": "2026-11-20T01:31:22.639Z"
+    },
+    {
+      "id": 5,
+      "user_id": 2,
+      "created_at": "2026-11-20T01:31:23.333Z"
     }
-  ]
+  ],
+  "cart_items": []
 }

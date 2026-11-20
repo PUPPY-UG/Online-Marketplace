@@ -34,6 +34,7 @@ export default function OrderTracking({ onToast }) {
 
   // Status updating (buyer confirming receipt)
   const [updating, setUpdating] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const loadOrderDetails = async () => {
     try {
@@ -57,20 +58,17 @@ export default function OrderTracking({ onToast }) {
   }, [id]);
 
   const handleConfirmReceipt = async () => {
-    if (!window.confirm('Have you physically received and inspected all items in this order on campus?')) {
-      return;
-    }
-
     try {
       setUpdating(true);
       const res = await api.updateOrderStatus(order.id, 'Completed');
       if (res.success) {
+        setShowConfirmModal(false);
         if (onToast) onToast('Order marked as Completed! Please rate your seller below.', 'success');
         await loadOrderDetails();
         setShowReviewForm(true);
       }
     } catch (err) {
-      if (onToast) onToast('Could not complete order.', 'error');
+      if (onToast) onToast(err.message || 'Could not complete order.', 'error');
     } finally {
       setUpdating(false);
     }
@@ -194,11 +192,11 @@ export default function OrderTracking({ onToast }) {
               </p>
             </div>
             <button
-              onClick={handleConfirmReceipt}
+              onClick={() => setShowConfirmModal(true)}
               disabled={updating}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition-all flex-shrink-0"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition-all flex-shrink-0 animate-bounce"
             >
-              {updating ? 'Updating...' : 'Confirm Receipt & Complete'}
+              <span>CONFIRM PICKUP</span>
             </button>
           </div>
         )}
@@ -222,6 +220,7 @@ export default function OrderTracking({ onToast }) {
             )}
             <div className="pt-2 border-t border-slate-200 text-slate-500 space-y-1">
               <p>Buyer: <strong>{order.buyer_name}</strong></p>
+              <p>Email: <strong>{order.buyer_email}</strong></p>
               <p>Phone: <strong>{order.buyer_phone}</strong></p>
             </div>
           </div>
@@ -353,6 +352,49 @@ export default function OrderTracking({ onToast }) {
             </div>
           ) : null}
         </div>
+
+        {/* REQUIRED CONFIRMATION DIALOG */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-5 shadow-2xl animate-in zoom-in-95 duration-150">
+              <div className="flex items-center space-x-2 text-emerald-600 border-b border-slate-100 pb-3">
+                <CheckCircle2 className="w-6 h-6" />
+                <h3 className="font-bold text-slate-900 text-base">Confirm Physical Item Collection</h3>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
+                "Have you physically received your order? Confirming this action will mark the transaction as completed."
+              </div>
+
+              <div className="text-[11px] text-slate-500 space-y-1">
+                <p>• Order Reference: <strong>{order.order_ref}</strong></p>
+                <p>• Pickup Location: <strong>{order.pickup_location}</strong></p>
+                <p className="text-emerald-700 font-semibold pt-1">
+                  Once confirmed, this order will be permanently marked as Completed.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={updating}
+                  onClick={handleConfirmReceipt}
+                  className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition-all text-center disabled:opacity-70"
+                >
+                  {updating ? 'Completing...' : 'Yes, I Have Received My Order.'}
+                </button>
+                <button
+                  type="button"
+                  disabled={updating}
+                  onClick={() => setShowConfirmModal(false)}
+                  className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

@@ -2,7 +2,7 @@
 -- UniTrade - Campus Online Marketplace for University Students
 -- Uganda Christian University (UCU)
 -- Sample Demonstration Seed Data
--- Default password for all sample accounts: UniTrade@2026
+-- Default password for Administrator: Admin@123 (or UniTrade@2026)
 -- Bcrypt Hash: $2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C
 -- ====================================================================
 
@@ -13,22 +13,22 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- --------------------------------------------------------------------
 -- Seed Users (1 Admin, 3 Sellers, 3 Buyers)
 -- --------------------------------------------------------------------
-INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `phone`, `role`, `campus_residence`, `student_id`, `status`) VALUES
--- System Administrator
-(1, 'Dennis Kibirige (Admin)', 'admin@unitrade.ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 772 100200', 'admin', 'Main Campus Administration Building', 'ADM/UCU/001', 'active'),
+INSERT INTO `users` (`id`, `full_name`, `email`, `password`, `phone`, `role`, `campus_residence`, `student_id`, `email_verified`, `status`) VALUES
+-- System Administrator (Password-protected)
+(1, 'Dennis Kibirige (Admin)', 'admin@unitrade.ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 772 100200', 'admin', 'Main Campus Administration Building', 'ADM/UCU/001', TRUE, 'active'),
 
--- Student Sellers
-(2, 'Grace Akello', 'grace.seller@ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 701 445566', 'seller', 'Agape Hall, Block B, Room 204', 'S22/BBA/045', 'active'),
-(3, 'Emmanuel Kato', 'emmanuel.seller@ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 782 998877', 'seller', 'Soba Hostel, Room 14', 'S21/BCS/112', 'active'),
-(4, 'Fiona Tumusiime', 'fiona.seller@ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 753 112233', 'seller', 'Bishop Tucker Hall, Room 12', 'S23/LAW/088', 'active'),
+-- Student Sellers (Passwordless OTP enabled)
+(2, 'Grace Akello', 'grace.seller@ucu.ac.ug', NULL, '+256 701 445566', 'seller', 'Agape Hall, Block B, Room 204', 'S22/BBA/045', TRUE, 'active'),
+(3, 'Emmanuel Kato', 'emmanuel.seller@ucu.ac.ug', NULL, '+256 782 998877', 'seller', 'Soba Hostel, Room 14', 'S21/BCS/112', TRUE, 'active'),
+(4, 'Fiona Tumusiime', 'fiona.seller@ucu.ac.ug', NULL, '+256 753 112233', 'seller', 'Bishop Tucker Hall, Room 12', 'S23/LAW/088', TRUE, 'active'),
 
--- Student Buyers
-(5, 'Brian Okello', 'brian.buyer@ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 774 332211', 'buyer', 'Sabiti Hall, Room 108', 'S24/BSIT/019', 'active'),
-(6, 'Sarah Namubiru', 'sarah.buyer@ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 705 667788', 'buyer', 'Allan Galpin Hall, Room 305', 'S23/BCOM/210', 'active'),
-(7, 'David Mukasa', 'david.buyer@ucu.ac.ug', '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', '+256 786 554433', 'buyer', 'Bugujju Off-Campus Residency', 'S22/BENG/074', 'active');
+-- Student Buyers (Passwordless OTP enabled)
+(5, 'Brian Okello', 'brian.buyer@ucu.ac.ug', NULL, '+256 774 332211', 'buyer', 'Sabiti Hall, Room 108', 'S24/BSIT/019', TRUE, 'active'),
+(6, 'Sarah Namubiru', 'sarah.buyer@ucu.ac.ug', NULL, '+256 705 667788', 'buyer', 'Allan Galpin Hall, Room 305', 'S23/BCOM/210', TRUE, 'active'),
+(7, 'David Mukasa', 'david.buyer@ucu.ac.ug', NULL, '+256 786 554433', 'buyer', 'Bugujju Off-Campus Residency', 'S22/BENG/074', TRUE, 'active');
 
 -- --------------------------------------------------------------------
--- Seed Products (17 Sample Listings Across All 6 Categories)
+-- Seed Products (18 Sample Listings Across All 6 Categories)
 -- --------------------------------------------------------------------
 INSERT INTO `items` (`id`, `seller_id`, `title`, `description`, `price`, `category`, `condition_state`, `image_url`, `is_available`, `status`) VALUES
 -- Category 1: Textbooks and Academic Materials
@@ -62,53 +62,43 @@ INSERT INTO `items` (`id`, `seller_id`, `title`, `description`, `price`, `catego
 (18, 4, 'Heavy Duty Campus Laptop Backpack (Water-resistant)', 'Spacious backpack with dedicated padded sleeve for 15.6 inch laptop, external USB charging port, and multiple organiser pockets.', 55000.00, 'Other Campus Essentials', 'New', 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80', TRUE, 'active');
 
 -- --------------------------------------------------------------------
--- Seed Sample Completed Orders, Order Items, Payments & Reviews
+-- Seed Sample Orders, Order Items, Payments & Reviews
 -- --------------------------------------------------------------------
--- Order 1: Completed purchase by Brian Okello from Grace Akello
-INSERT INTO `orders` (`id`, `order_ref`, `buyer_id`, `total_amount`, `order_status`, `payment_status`, `payment_method`, `pickup_location`, `buyer_name`, `buyer_phone`, `notes`) VALUES
-(1, 'ORD-UCU-2026-001', 5, 45000.00, 'Completed', 'Paid', 'Mobile Money (MTN MoMo)', 'Main Library Entrance (Hamu Mukasa Library)', 'Brian Okello', '+256 774 332211', 'Please bring it near the security desk.');
+-- Order 1: Completed purchase by Brian Okello from Grace Akello via MTN Mobile Money
+INSERT INTO `orders` (`id`, `order_ref`, `buyer_id`, `buyer_email`, `total_amount`, `order_status`, `payment_status`, `payment_method`, `pickup_location`, `buyer_name`, `buyer_phone`, `notes`, `ready_for_pickup_date`, `completed_date`) VALUES
+(1, 'ORD-UCU-2026-001', 5, 'brian.buyer@ucu.ac.ug', 45000.00, 'Completed', 'Paid', 'MTN Mobile Money', 'Main Library Entrance (Hamu Mukasa Library)', 'Brian Okello', '+256 774 332211', 'Please bring it near the security desk.', '2026-11-04 11:00:00', '2026-11-04 14:30:00');
 
 INSERT INTO `order_items` (`id`, `order_id`, `item_id`, `seller_id`, `price`, `quantity`) VALUES
 (1, 1, 1, 2, 45000.00, 1);
 
-INSERT INTO `payments` (`id`, `order_id`, `transaction_ref`, `amount`, `payment_method`, `phone_number`, `network_provider`, `status`, `is_simulated`) VALUES
-(1, 1, 'MOMO-SIM-98231', 45000.00, 'Mobile Money (MTN MoMo)', '+256774332211', 'MTN Uganda', 'Successful', TRUE);
+INSERT INTO `payments` (`id`, `order_id`, `transaction_ref`, `amount`, `currency`, `payment_method`, `phone_number`, `network_provider`, `status`, `is_simulated`) VALUES
+(1, 1, 'MTN-MOMO-20260401', 45000.00, 'UGX', 'MTN Mobile Money', '+256774332211', 'MTN Uganda', 'Successful', TRUE);
 
 INSERT INTO `reviews` (`id`, `order_id`, `buyer_id`, `seller_id`, `rating`, `comment`) VALUES
 (1, 1, 5, 2, 5, 'Great seller! The textbook was exactly as described and Grace met me promptly at the Hamu Mukasa Library.');
 
--- Order 2: Order in "Ready for Pickup" status for Sarah Namubiru from Emmanuel Kato
-INSERT INTO `orders` (`id`, `order_ref`, `buyer_id`, `total_amount`, `order_status`, `payment_status`, `payment_method`, `pickup_location`, `buyer_name`, `buyer_phone`, `notes`) VALUES
-(2, 'ORD-UCU-2026-002', 6, 75000.00, 'Ready for Pickup', 'Paid', 'Mobile Money (Airtel Money)', 'UCU Guild Canteen / Tech Park', 'Sarah Namubiru', '+256 705 667788', 'Available after 2:00 PM lecture.');
+-- Order 2: Order in "Ready for Pickup" status for Sarah Namubiru from Emmanuel Kato via Airtel Money
+INSERT INTO `orders` (`id`, `order_ref`, `buyer_id`, `buyer_email`, `total_amount`, `order_status`, `payment_status`, `payment_method`, `pickup_location`, `buyer_name`, `buyer_phone`, `notes`, `ready_for_pickup_date`, `completed_date`) VALUES
+(2, 'ORD-UCU-2026-002', 6, 'sarah.buyer@ucu.ac.ug', 75000.00, 'Ready for Pickup', 'Paid', 'Airtel Money', 'Guild Canteen & Student Centre Courtyard', 'Sarah Namubiru', '+256 705 667788', 'I have lectures until 3pm.', '2026-11-05 14:00:00', NULL);
 
 INSERT INTO `order_items` (`id`, `order_id`, `item_id`, `seller_id`, `price`, `quantity`) VALUES
 (2, 2, 7, 3, 75000.00, 1);
 
-INSERT INTO `payments` (`id`, `order_id`, `transaction_ref`, `amount`, `payment_method`, `phone_number`, `network_provider`, `status`, `is_simulated`) VALUES
-(2, 2, 'AIRTEL-SIM-45210', 75000.00, 'Mobile Money (Airtel Money)', '+256705667788', 'Airtel Uganda', 'Successful', TRUE);
+INSERT INTO `payments` (`id`, `order_id`, `transaction_ref`, `amount`, `currency`, `payment_method`, `phone_number`, `network_provider`, `status`, `is_simulated`) VALUES
+(2, 2, 'AIRTEL-MOMO-20260502', 75000.00, 'UGX', 'Airtel Money', '+256705667788', 'Airtel Uganda', 'Successful', TRUE);
 
--- Order 3: Completed purchase by David Mukasa from Fiona Tumusiime
-INSERT INTO `orders` (`id`, `order_ref`, `buyer_id`, `total_amount`, `order_status`, `payment_status`, `payment_method`, `pickup_location`, `buyer_name`, `buyer_phone`, `notes`) VALUES
-(3, 'ORD-UCU-2026-003', 7, 95000.00, 'Completed', 'Paid', 'Cash on Pickup (Simulation)', 'Nkoyoyo Hall Steps', 'David Mukasa', '+256 786 554433', 'Will pay in cash upon inspecting the power bank.');
+-- Email Notification Log for Order 2 (Ready for Pickup)
+INSERT INTO `email_notifications` (`id`, `order_id`, `recipient_email`, `notification_type`, `delivery_status`, `sent_date`) VALUES
+(1, 2, 'sarah.buyer@ucu.ac.ug', 'READY_FOR_PICKUP', 'Sent', '2026-11-05 14:00:05');
+
+-- Order 3: Order in "Preparing" status for David Mukasa from Fiona Tumusiime via PayPal
+INSERT INTO `orders` (`id`, `order_ref`, `buyer_id`, `buyer_email`, `total_amount`, `order_status`, `payment_status`, `payment_method`, `pickup_location`, `buyer_name`, `buyer_phone`, `notes`, `ready_for_pickup_date`, `completed_date`) VALUES
+(3, 'ORD-UCU-2026-003', 7, 'david.buyer@ucu.ac.ug', 95000.00, 'Preparing', 'Paid', 'PayPal', 'Bishop Tucker Building Forecourt', 'David Mukasa', '+256 786 554433', 'Will pick up in the evening.', NULL, NULL);
 
 INSERT INTO `order_items` (`id`, `order_id`, `item_id`, `seller_id`, `price`, `quantity`) VALUES
 (3, 3, 8, 4, 95000.00, 1);
 
-INSERT INTO `payments` (`id`, `order_id`, `transaction_ref`, `amount`, `payment_method`, `phone_number`, `network_provider`, `status`, `is_simulated`) VALUES
-(3, 3, 'CASH-SIM-12904', 95000.00, 'Cash on Pickup (Simulation)', '+256786554433', 'Cash', 'Successful', TRUE);
-
-INSERT INTO `reviews` (`id`, `order_id`, `buyer_id`, `seller_id`, `rating`, `comment`) VALUES
-(2, 3, 7, 4, 5, 'Fiona was very responsive. The Anker power bank is brand new and charges my phone super fast!');
-
--- --------------------------------------------------------------------
--- Seed Active Shopping Cart for Buyer Brian Okello
--- --------------------------------------------------------------------
-INSERT INTO `cart` (`id`, `user_id`) VALUES
-(1, 5),
-(2, 6);
-
-INSERT INTO `cart_items` (`id`, `cart_id`, `item_id`, `quantity`) VALUES
-(1, 1, 6, 1),
-(2, 1, 17, 1);
+INSERT INTO `payments` (`id`, `order_id`, `transaction_ref`, `amount`, `currency`, `payment_method`, `phone_number`, `network_provider`, `status`, `is_simulated`) VALUES
+(3, 3, 'PAYPAL-CAP-20260603', 95000.00, 'UGX', 'PayPal', NULL, 'PayPal Sandbox', 'Successful', TRUE);
 
 SET FOREIGN_KEY_CHECKS = 1;

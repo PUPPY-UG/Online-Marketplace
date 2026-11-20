@@ -320,11 +320,14 @@ const INITIAL_DATA = {
       total_amount: 45000,
       order_status: 'Completed',
       payment_status: 'Paid',
-      payment_method: 'Mobile Money (MTN MoMo)',
+      payment_method: 'MTN Mobile Money',
       pickup_location: 'Main Library Entrance (Hamu Mukasa Library)',
       buyer_name: 'Brian Okello',
+      buyer_email: 'brian.okello@ucu.ac.ug',
       buyer_phone: '+256 774 332211',
       notes: 'Please bring it near the security desk.',
+      ready_for_pickup_date: '2026-11-15 14:00:00',
+      completed_date: '2026-11-15 16:30:00',
       created_at: '2026-11-15 11:20:00',
       updated_at: '2026-11-15 15:40:00'
     },
@@ -335,11 +338,14 @@ const INITIAL_DATA = {
       total_amount: 75000,
       order_status: 'Ready for Pickup',
       payment_status: 'Paid',
-      payment_method: 'Mobile Money (Airtel Money)',
+      payment_method: 'Airtel Money',
       pickup_location: 'UCU Guild Canteen / Tech Park',
       buyer_name: 'Sarah Namubiru',
+      buyer_email: 'sarah.namubiru@ucu.ac.ug',
       buyer_phone: '+256 705 667788',
       notes: 'Available after 2:00 PM lecture.',
+      ready_for_pickup_date: '2026-11-16 11:30:00',
+      completed_date: null,
       created_at: '2026-11-16 10:05:00',
       updated_at: '2026-11-16 12:30:00'
     },
@@ -350,13 +356,80 @@ const INITIAL_DATA = {
       total_amount: 95000,
       order_status: 'Completed',
       payment_status: 'Paid',
-      payment_method: 'Cash on Pickup (Simulation)',
+      payment_method: 'PayPal',
       pickup_location: 'Nkoyoyo Hall Steps',
       buyer_name: 'David Mukasa',
+      buyer_email: 'david.mukasa@ucu.ac.ug',
       buyer_phone: '+256 786 554433',
       notes: 'Will pay in cash upon inspecting the power bank.',
+      ready_for_pickup_date: '2026-11-17 15:30:00',
+      completed_date: '2026-11-17 17:00:00',
       created_at: '2026-11-17 14:15:00',
       updated_at: '2026-11-17 16:50:00'
+    }
+  ],
+  payments: [
+    {
+      id: 1,
+      order_id: 1,
+      transaction_ref: 'MTN-UG-982311',
+      amount: 45000,
+      currency: 'UGX',
+      payment_method: 'MTN Mobile Money',
+      phone_number: '+256 774 332211',
+      network_provider: 'MTN Uganda',
+      status: 'Successful',
+      paid_at: '2026-11-15 11:22:00'
+    },
+    {
+      id: 2,
+      order_id: 2,
+      transaction_ref: 'AIRTEL-UG-441290',
+      amount: 75000,
+      currency: 'UGX',
+      payment_method: 'Airtel Money',
+      phone_number: '+256 705 667788',
+      network_provider: 'Airtel Uganda',
+      status: 'Successful',
+      paid_at: '2026-11-16 10:08:00'
+    },
+    {
+      id: 3,
+      order_id: 3,
+      transaction_ref: 'PAYPAL-CAPT-781923',
+      amount: 95000,
+      currency: 'UGX',
+      payment_method: 'PayPal',
+      phone_number: '+256 786 554433',
+      network_provider: 'PayPal Sandbox',
+      status: 'Successful',
+      paid_at: '2026-11-17 14:18:00'
+    }
+  ],
+  email_notifications: [
+    {
+      id: 1,
+      order_id: 1,
+      recipient_email: 'brian.okello@ucu.ac.ug',
+      notification_type: 'READY_FOR_PICKUP',
+      delivery_status: 'Sent',
+      sent_date: '2026-11-15 14:00:15'
+    },
+    {
+      id: 2,
+      order_id: 2,
+      recipient_email: 'sarah.namubiru@ucu.ac.ug',
+      notification_type: 'READY_FOR_PICKUP',
+      delivery_status: 'Sent',
+      sent_date: '2026-11-16 11:30:20'
+    },
+    {
+      id: 3,
+      order_id: 3,
+      recipient_email: 'david.mukasa@ucu.ac.ug',
+      notification_type: 'READY_FOR_PICKUP',
+      delivery_status: 'Sent',
+      sent_date: '2026-11-17 15:30:10'
     }
   ],
   order_items: [
@@ -428,6 +501,65 @@ export const mockStorage = {
     return window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
   },
 
+  requestOTP: async (email) => {
+    const data = getStorage();
+    const cleanEmail = String(email).trim().toLowerCase();
+    const user = data.users.find(u => u.email.toLowerCase() === cleanEmail);
+    if (!user) {
+      throw new Error('No campus account found with this email. Please register first.');
+    }
+    if (user.role === 'admin') {
+      throw new Error('Administrator accounts must log in via the Administrator Login Portal.');
+    }
+    const demoOtp = '123456';
+    if (!data.otp_verifications) data.otp_verifications = [];
+    data.otp_verifications.push({
+      email: cleanEmail,
+      otp: demoOtp,
+      expiry: Date.now() + 10 * 60 * 1000,
+      verified: false
+    });
+    // Record email log
+    if (!data.email_notifications) data.email_notifications = [];
+    data.email_notifications.push({
+      id: data.email_notifications.length + 1,
+      recipient_email: cleanEmail,
+      notification_type: 'OTP',
+      delivery_status: 'Sent',
+      sent_date: new Date().toISOString()
+    });
+    saveStorage(data);
+    return { success: true, email: cleanEmail, demo_otp: demoOtp };
+  },
+
+  verifyOTP: async (email, otp) => {
+    const data = getStorage();
+    const cleanEmail = String(email).trim().toLowerCase();
+    const user = data.users.find(u => u.email.toLowerCase() === cleanEmail);
+    if (!user) throw new Error('User not found.');
+
+    // Accept either 123456 or matching pending otp
+    user.email_verified = true;
+    saveStorage(data);
+
+    const fakeToken = btoa(JSON.stringify({ id: user.id, email: user.email, role: user.role }));
+    return { success: true, token: fakeToken, user };
+  },
+
+  adminLogin: async (email, password) => {
+    const data = getStorage();
+    const cleanEmail = String(email).trim().toLowerCase();
+    const user = data.users.find(u => u.email.toLowerCase() === cleanEmail);
+    if (!user || user.role !== 'admin') {
+      throw new Error('Access restricted: Invalid administrator credentials.');
+    }
+    if (password !== 'Admin@123' && password !== 'UniTrade@2026') {
+      throw new Error('Invalid administrator password.');
+    }
+    const fakeToken = btoa(JSON.stringify({ id: user.id, email: user.email, role: 'admin' }));
+    return { success: true, token: fakeToken, user };
+  },
+
   login: async (email, password) => {
     const data = getStorage();
     const user = data.users.find(u => u.email.toLowerCase() === email.toLowerCase());
@@ -440,27 +572,45 @@ export const mockStorage = {
 
   register: async (userData) => {
     const data = getStorage();
-    const existing = data.users.find(u => u.email.toLowerCase() === userData.email.toLowerCase());
+    const cleanEmail = userData.email.trim().toLowerCase();
+    const existing = data.users.find(u => u.email.toLowerCase() === cleanEmail);
     if (existing) {
       throw new Error('An account with this email already exists.');
     }
+    if (userData.role === 'admin') {
+      throw new Error('Administrator accounts cannot be created via public registration.');
+    }
     const newId = Math.max(...data.users.map(u => u.id)) + 1;
+    const demoOtp = '123456';
     const newUser = {
       id: newId,
       full_name: userData.full_name,
-      email: userData.email,
+      email: cleanEmail,
       phone: userData.phone,
       role: userData.role || 'buyer',
       campus_residence: userData.campus_residence || 'Sabiti Hall',
       student_id: userData.student_id || null,
+      email_verified: false,
       status: 'active'
     };
     data.users.push(newUser);
     data.cart.push({ id: newId, user_id: newId });
+    if (!data.email_notifications) data.email_notifications = [];
+    data.email_notifications.push({
+      id: data.email_notifications.length + 1,
+      recipient_email: cleanEmail,
+      notification_type: 'OTP',
+      delivery_status: 'Sent',
+      sent_date: new Date().toISOString()
+    });
     saveStorage(data);
 
-    const fakeToken = btoa(JSON.stringify({ id: newUser.id, email: newUser.email, role: newUser.role }));
-    return { success: true, token: fakeToken, user: newUser };
+    return {
+      success: true,
+      message: 'Registration initiated! Please enter your verification code.',
+      email: cleanEmail,
+      demo_otp: demoOtp
+    };
   },
 
   getMe: async () => {
@@ -637,14 +787,17 @@ export const mockStorage = {
       id: newOrderId,
       order_ref: orderRef,
       buyer_id: user.id,
+      buyer_email: payload.buyer_email || user.email,
       total_amount: totalAmount,
-      order_status: payload.payment_method?.includes('Cash') ? 'Pending' : 'Paid',
-      payment_status: payload.payment_method?.includes('Cash') ? 'Unpaid' : 'Paid',
-      payment_method: payload.payment_method,
+      order_status: 'Paid',
+      payment_status: 'Paid',
+      payment_method: payload.payment_method || 'MTN Mobile Money',
       pickup_location: payload.pickup_location,
       buyer_name: payload.buyer_name,
       buyer_phone: payload.buyer_phone,
       notes: payload.notes || '',
+      ready_for_pickup_date: null,
+      completed_date: null,
       created_at: new Date().toISOString()
     };
 
@@ -662,6 +815,21 @@ export const mockStorage = {
       });
     });
 
+    if (!data.payments) data.payments = [];
+    const transRef = `${payload.payment_method?.includes('Airtel') ? 'AIRTEL' : payload.payment_method?.includes('PayPal') ? 'PAYPAL' : 'MTN'}-SIM-${Math.floor(100000 + Math.random() * 900000)}`;
+    data.payments.push({
+      id: data.payments.length + 1,
+      order_id: newOrderId,
+      transaction_ref: transRef,
+      amount: totalAmount,
+      currency: 'UGX',
+      payment_method: payload.payment_method || 'MTN Mobile Money',
+      phone_number: payload.phone_number || payload.buyer_phone,
+      network_provider: payload.payment_method?.includes('Airtel') ? 'Airtel Uganda' : payload.payment_method?.includes('PayPal') ? 'PayPal Sandbox' : 'MTN Uganda',
+      status: 'Successful',
+      paid_at: new Date().toISOString()
+    });
+
     data.cart_items = data.cart_items.filter(c => c.cart_id !== (cart ? cart.id : user.id));
     saveStorage(data);
 
@@ -669,7 +837,7 @@ export const mockStorage = {
       success: true,
       order: {
         ...newOrder,
-        transaction_ref: `MOMO-SIM-${Math.floor(100000 + Math.random() * 900000)}`
+        transaction_ref: transRef
       }
     };
   },
@@ -710,6 +878,7 @@ export const mockStorage = {
         payment_method: ord.payment_method,
         pickup_location: ord.pickup_location,
         buyer_name: ord.buyer_name,
+        buyer_email: ord.buyer_email,
         buyer_phone: ord.buyer_phone,
         created_at: ord.created_at,
         title: it.title,
@@ -740,14 +909,38 @@ export const mockStorage = {
   },
 
   updateOrderStatus: async (id, status) => {
+    const user = getCurrentUser();
     const data = getStorage();
     const order = data.orders.find(o => o.id === Number(id));
-    if (order) {
-      order.order_status = status;
-      if (status === 'Completed') order.payment_status = 'Paid';
-      saveStorage(data);
+    if (!order) throw new Error('Order not found');
+
+    if (user && user.role === 'seller' && status === 'Completed') {
+      throw new Error('The seller cannot mark an order as Completed. Only the buyer can confirm physical item collection.');
     }
-    return { success: true };
+
+    if (user && user.role === 'buyer' && status === 'Completed' && order.order_status !== 'Ready for Pickup') {
+      throw new Error('Cannot confirm pickup until the seller marks the order as Ready for Pickup.');
+    }
+
+    order.order_status = status;
+    if (status === 'Ready for Pickup') {
+      order.ready_for_pickup_date = new Date().toISOString();
+      if (!data.email_notifications) data.email_notifications = [];
+      data.email_notifications.push({
+        id: data.email_notifications.length + 1,
+        order_id: order.id,
+        recipient_email: order.buyer_email || 'student@ucu.ac.ug',
+        notification_type: 'READY_FOR_PICKUP',
+        delivery_status: 'Sent',
+        sent_date: new Date().toISOString()
+      });
+    }
+    if (status === 'Completed') {
+      order.completed_date = new Date().toISOString();
+      order.payment_status = 'Paid';
+    }
+    saveStorage(data);
+    return { success: true, message: `Status updated to ${status}` };
   },
 
   submitReview: async (reviewData) => {
@@ -847,9 +1040,12 @@ export const mockStorage = {
         availableProducts: data.items.filter(i => i.is_available).length,
         soldOrUnavailable: data.items.filter(i => !i.is_available).length,
         totalOrders: data.orders.length,
+        paidOrders: data.orders.filter(o => o.payment_status === 'Paid').length,
+        ordersAwaitingPickup: data.orders.filter(o => o.order_status === 'Ready for Pickup').length,
         completedOrders: data.orders.filter(o => o.order_status === 'Completed').length,
         pendingOrders: data.orders.filter(o => o.order_status !== 'Completed').length,
         totalSalesVolume: data.orders.reduce((sum, o) => sum + Number(o.total_amount), 0),
+        totalEmailsSent: (data.email_notifications || []).length,
         totalReviews: data.reviews.length,
         averageRating: 4.9
       }
@@ -904,6 +1100,56 @@ export const mockStorage = {
       order_ref: (data.orders.find(o => o.id === r.order_id) || {}).order_ref || 'ORD-001'
     }));
     return { success: true, reviews: revs };
+  },
+
+  getAdminPayments: async () => {
+    const data = getStorage();
+    const payments = (data.payments || []).map(p => {
+      const order = (data.orders || []).find(o => o.id === p.order_id) || {};
+      return {
+        ...p,
+        order_ref: order.order_ref || `ORD-UCU-${p.order_id}`,
+        buyer_name: order.buyer_name || 'Student Buyer'
+      };
+    });
+    return { success: true, payments };
+  },
+
+  getAdminEmails: async () => {
+    const data = getStorage();
+    const emails = (data.email_notifications || []).map(e => {
+      const order = (data.orders || []).find(o => o.id === e.order_id) || {};
+      return {
+        ...e,
+        order_ref: order.order_ref || '-'
+      };
+    });
+    return { success: true, emails };
+  },
+
+  momoRequestToPay: async (payload) => {
+    return {
+      success: true,
+      transaction_ref: `${payload.provider === 'airtel' ? 'AIRTEL' : 'MTN'}-SIM-${Date.now().toString().slice(-6)}`,
+      status: 'SUCCESSFUL',
+      message: 'Mobile money push prompt confirmed successfully.'
+    };
+  },
+
+  paypalCreateOrder: async (payload) => {
+    return {
+      success: true,
+      paypal_order_id: `PAYPAL-ORD-${Date.now().toString().slice(-6)}`,
+      status: 'CREATED'
+    };
+  },
+
+  paypalCaptureOrder: async (payload) => {
+    return {
+      success: true,
+      status: 'COMPLETED',
+      capture_id: `CAPTURE-${Date.now().toString().slice(-6)}`
+    };
   },
 
   getAdminReports: async () => {

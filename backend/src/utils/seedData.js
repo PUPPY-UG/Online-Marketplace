@@ -5,11 +5,12 @@ const initialSeed = {
       id: 1,
       full_name: 'Dennis Kibirige (Admin)',
       email: 'admin@unitrade.ucu.ac.ug',
-      password: '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', // UniTrade@2026
+      password: '$2a$10$Vsg/aVtbzANC8ZyyTJxDqOQGZzkD.0opRquMgULYvbRopUZdW8f3C', // Admin@123 / UniTrade@2026
       phone: '+256 772 100200',
       role: 'admin',
       campus_residence: 'Main Campus Administration Building',
       student_id: 'ADM/UCU/001',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-01 08:00:00'
     },
@@ -22,6 +23,7 @@ const initialSeed = {
       role: 'seller',
       campus_residence: 'Agape Hall, Block B, Room 204',
       student_id: 'S22/BBA/045',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-02 09:30:00'
     },
@@ -34,6 +36,7 @@ const initialSeed = {
       role: 'seller',
       campus_residence: 'Soba Hostel, Room 14',
       student_id: 'S21/BCS/112',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-02 11:15:00'
     },
@@ -46,6 +49,7 @@ const initialSeed = {
       role: 'seller',
       campus_residence: 'Bishop Tucker Hall, Room 12',
       student_id: 'S23/LAW/088',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-03 14:00:00'
     },
@@ -58,6 +62,7 @@ const initialSeed = {
       role: 'buyer',
       campus_residence: 'Sabiti Hall, Room 108',
       student_id: 'S24/BSIT/019',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-04 10:00:00'
     },
@@ -70,6 +75,7 @@ const initialSeed = {
       role: 'buyer',
       campus_residence: 'Allan Galpin Hall, Room 305',
       student_id: 'S23/BCOM/210',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-05 13:45:00'
     },
@@ -82,6 +88,7 @@ const initialSeed = {
       role: 'buyer',
       campus_residence: 'Bugujju Off-Campus Residency',
       student_id: 'S22/BENG/074',
+      email_verified: true,
       status: 'active',
       created_at: '2026-11-06 16:20:00'
     }
@@ -327,14 +334,17 @@ const initialSeed = {
       id: 1,
       order_ref: 'ORD-UCU-2026-001',
       buyer_id: 5,
+      buyer_email: 'brian.buyer@ucu.ac.ug',
       total_amount: 45000,
       order_status: 'Completed',
       payment_status: 'Paid',
-      payment_method: 'Mobile Money (MTN MoMo)',
+      payment_method: 'MTN Mobile Money',
       pickup_location: 'Main Library Entrance (Hamu Mukasa Library)',
       buyer_name: 'Brian Okello',
       buyer_phone: '+256 774 332211',
       notes: 'Please bring it near the security desk.',
+      ready_for_pickup_date: '2026-11-15 13:00:00',
+      completed_date: '2026-11-15 15:40:00',
       created_at: '2026-11-15 11:20:00',
       updated_at: '2026-11-15 15:40:00'
     },
@@ -342,14 +352,17 @@ const initialSeed = {
       id: 2,
       order_ref: 'ORD-UCU-2026-002',
       buyer_id: 6,
+      buyer_email: 'sarah.buyer@ucu.ac.ug',
       total_amount: 75000,
       order_status: 'Ready for Pickup',
       payment_status: 'Paid',
-      payment_method: 'Mobile Money (Airtel Money)',
+      payment_method: 'Airtel Money',
       pickup_location: 'UCU Guild Canteen / Tech Park',
       buyer_name: 'Sarah Namubiru',
       buyer_phone: '+256 705 667788',
       notes: 'Available after 2:00 PM lecture.',
+      ready_for_pickup_date: '2026-11-16 12:30:00',
+      completed_date: null,
       created_at: '2026-11-16 10:05:00',
       updated_at: '2026-11-16 12:30:00'
     },
@@ -357,16 +370,19 @@ const initialSeed = {
       id: 3,
       order_ref: 'ORD-UCU-2026-003',
       buyer_id: 7,
+      buyer_email: 'david.buyer@ucu.ac.ug',
       total_amount: 95000,
-      order_status: 'Completed',
+      order_status: 'Preparing',
       payment_status: 'Paid',
-      payment_method: 'Cash on Pickup (Simulation)',
+      payment_method: 'PayPal',
       pickup_location: 'Nkoyoyo Hall Steps',
       buyer_name: 'David Mukasa',
       buyer_phone: '+256 786 554433',
-      notes: 'Will pay in cash upon inspecting the power bank.',
+      notes: 'Please keep original box.',
+      ready_for_pickup_date: null,
+      completed_date: null,
       created_at: '2026-11-17 14:15:00',
-      updated_at: '2026-11-17 16:50:00'
+      updated_at: '2026-11-17 14:15:00'
     }
   ],
   order_items: [
@@ -402,9 +418,10 @@ const initialSeed = {
     {
       id: 1,
       order_id: 1,
-      transaction_ref: 'MOMO-SIM-98231',
+      transaction_ref: 'MTN-MOMO-98231',
       amount: 45000,
-      payment_method: 'Mobile Money (MTN MoMo)',
+      currency: 'UGX',
+      payment_method: 'MTN Mobile Money',
       phone_number: '+256774332211',
       network_provider: 'MTN Uganda',
       status: 'Successful',
@@ -414,9 +431,10 @@ const initialSeed = {
     {
       id: 2,
       order_id: 2,
-      transaction_ref: 'AIRTEL-SIM-45210',
+      transaction_ref: 'AIRTEL-MOMO-45210',
       amount: 75000,
-      payment_method: 'Mobile Money (Airtel Money)',
+      currency: 'UGX',
+      payment_method: 'Airtel Money',
       phone_number: '+256705667788',
       network_provider: 'Airtel Uganda',
       status: 'Successful',
@@ -426,16 +444,29 @@ const initialSeed = {
     {
       id: 3,
       order_id: 3,
-      transaction_ref: 'CASH-SIM-12904',
+      transaction_ref: 'PAYPAL-CAP-12904',
       amount: 95000,
-      payment_method: 'Cash on Pickup (Simulation)',
-      phone_number: '+256786554433',
-      network_provider: 'Cash',
+      currency: 'UGX',
+      payment_method: 'PayPal',
+      phone_number: null,
+      network_provider: 'PayPal Sandbox',
       status: 'Successful',
       is_simulated: true,
-      paid_at: '2026-11-17 16:45:00'
+      paid_at: '2026-11-17 14:16:00'
     }
   ],
+  email_notifications: [
+    {
+      id: 1,
+      order_id: 2,
+      recipient_email: 'sarah.buyer@ucu.ac.ug',
+      notification_type: 'READY_FOR_PICKUP',
+      delivery_status: 'Sent',
+      sent_date: '2026-11-16 12:30:00',
+      error_message: null
+    }
+  ],
+  otp_verifications: [],
   reviews: [
     {
       id: 1,

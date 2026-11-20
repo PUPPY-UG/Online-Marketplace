@@ -18,6 +18,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import OrderTracking from './pages/OrderTracking';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminLogin from './pages/admin/AdminLogin';
 
 // Role Dashboards
 import BuyerDashboard from './pages/buyer/BuyerDashboard';
@@ -53,6 +54,7 @@ export default function App() {
                 <Route path="/products/:id" element={<ProductDetails onToast={showToast} />} />
                 <Route path="/cart" element={<Cart onToast={showToast} />} />
                 <Route path="/login" element={<Login onToast={showToast} />} />
+                <Route path="/admin/login" element={<AdminLogin onToast={showToast} />} />
                 <Route path="/register" element={<Register onToast={showToast} />} />
 
                 {/* Checkout & Orders */}

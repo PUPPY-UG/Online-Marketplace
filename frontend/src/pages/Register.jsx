@@ -1,270 +1,378 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  ShoppingBag, 
-  Lock, 
-  Mail, 
-  User, 
-  Phone, 
-  MapPin, 
-  Store, 
-  UserCheck, 
-  ArrowRight,
-  AlertCircle
-} from 'lucide-react';
+import { User, Mail, Phone, MapPin, BadgeCheck, ArrowRight, CheckCircle, AlertCircle, Sparkles, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register({ onToast }) {
   const [searchParams] = useSearchParams();
   const initialRole = searchParams.get('role') === 'seller' ? 'seller' : 'buyer';
 
-  const [role, setRole] = useState(initialRole);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [residence, setResidence] = useState('Sabiti Hall');
-  const [studentId, setStudentId] = useState('');
-  const [password, setPassword] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    role: initialRole,
+    campus_residence: 'Sabiti Hall',
+    student_id: ''
+  });
 
-  const { register } = useAuth();
+  const [step, setStep] = useState(1); // 1 = Registration Form, 2 = Verify OTP
+  const [otp, setOtp] = useState('');
+  const [demoOtpHint, setDemoOtpHint] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const { register, verifyOTP } = useAuth();
   const navigate = useNavigate();
 
-  const halls = [
-    'Sabiti Hall (Male)',
-    'Agape Hall (Female)',
-    'Allan Galpin Hall (Female)',
-    'Bishop Tucker Hall',
-    'Soba Hostel (Off-Campus)',
-    'Bugujju Residencies',
-    'Tech Park / Main Campus',
-    'Other Mukono Residence'
-  ];
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async (e) => {
+  // Step 1: Submit Registration & Request OTP
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg('');
+    setError('');
 
-    if (password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters long.');
+    if (!formData.full_name.trim() || !formData.email.trim() || !formData.phone.trim()) {
+      setError('Full name, email address, and phone number are required.');
       return;
     }
 
     try {
-      setSubmitting(true);
-      const user = await register({
-        full_name: fullName.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        role,
-        campus_residence: residence,
-        student_id: studentId.trim() || null,
-        password
+      setLoading(true);
+      const res = await register({
+        ...formData,
+        email: formData.email.trim().toLowerCase(),
+        full_name: formData.full_name.trim(),
+        phone: formData.phone.trim()
       });
 
-      if (onToast) onToast(`Welcome to UniTrade, ${user.full_name}!`, 'success');
+      if (res.success) {
+        setStep(2);
+        if (res.demo_otp) {
+          setDemoOtpHint(res.demo_otp);
+        }
+        if (onToast) onToast(res.message || 'Registration initiated! Please enter your verification code.', 'success');
+      } else {
+        setError(res.message || 'Registration failed.');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to complete registration.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Verify Registration OTP
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!otp.trim() || otp.trim().length !== 6) {
+      setError('Please enter the 6-digit verification code.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const user = await verifyOTP(formData.email.trim().toLowerCase(), otp.trim());
+      if (onToast) onToast(`Account successfully verified! Welcome, ${user.full_name}.`, 'success');
+
       if (user.role === 'seller') {
         navigate('/seller/dashboard');
       } else {
         navigate('/buyer/dashboard');
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Registration failed.');
+      setError(err.message || 'Verification code failed. Please try again.');
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
+  const residenceOptions = [
+    'Sabiti Hall (Male)',
+    'Agape Hall (Female)',
+    'Allan Galpin Hall (Male)',
+    'Bishop Tucker Hall (Female)',
+    'Soba Hostel',
+    'Tech Park Hostels',
+    'Bugujju Off-Campus Residency',
+    'Wandegeya / Kauga (Mukono)',
+    'Other Mukono Campus Location'
+  ];
+
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-lg w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
+      <div className="max-w-xl w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-200">
         
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-blue to-brand-orange flex items-center justify-center text-white mx-auto shadow-md">
-            <ShoppingBag className="w-6 h-6" />
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-orange-50 text-brand-orange mb-4 ring-8 ring-orange-50/50">
+            {step === 1 ? <User className="w-7 h-7" /> : <KeyRound className="w-7 h-7" />}
           </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Join UniTrade Campus
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            {step === 1 ? 'Create Campus Account' : 'Verify Your Email'}
           </h2>
-          <p className="text-xs text-slate-500">
-            Create your Uganda Christian University marketplace student account
+          <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
+            {step === 1
+              ? 'Join UniTrade at Uganda Christian University. No password required — authenticate safely using one-time email codes.'
+              : `Enter the 6-digit verification code sent to ${formData.email}`}
           </p>
         </div>
 
-        {/* Role Selector Tabs */}
-        <div>
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">
-            Select Your Primary Campus Role
-          </label>
-          <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-100 rounded-2xl">
-            <button
-              type="button"
-              onClick={() => setRole('buyer')}
-              className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
-                role === 'buyer'
-                  ? 'bg-white text-brand-blue shadow-sm'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>Student Buyer</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setRole('seller')}
-              className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
-                role === 'seller'
-                  ? 'bg-white text-brand-orange shadow-sm'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              <Store className="w-4 h-4" />
-              <span>Campus Seller</span>
-            </button>
-          </div>
-        </div>
-
         {/* Error Alert */}
-        {errorMsg && (
-          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center space-x-2 text-xs text-rose-800">
-            <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-            <span>{errorMsg}</span>
+        {error && (
+          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start space-x-2.5 animate-in fade-in duration-200">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span className="font-medium">{error}</span>
           </div>
         )}
 
-        {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Full Name <span className="text-rose-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. David Mukasa"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-blue focus:outline-none"
-              />
-              <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+        {/* Demo OTP Helper Banner (when available) */}
+        {step === 2 && demoOtpHint && (
+          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>Academic Demo Code: <strong className="font-mono text-sm tracking-wider font-bold">{demoOtpHint}</strong></span>
             </div>
+            <button
+              type="button"
+              onClick={() => setOtp(demoOtpHint)}
+              className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold text-[10px] hover:bg-emerald-700 transition-colors shadow-sm"
+            >
+              Autofill
+            </button>
           </div>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Step 1: Registration Form */}
+        {step === 1 && (
+          <form onSubmit={handleRegisterSubmit} className="space-y-5">
+            
+            {/* Role Selection (Student Buyer vs Student Seller) */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Student Email <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                I Want To:
               </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@ucu.ac.ug"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-blue focus:outline-none"
-                />
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'buyer' })}
+                  className={`p-3.5 rounded-2xl border text-left flex items-center space-x-3 transition-all ${
+                    formData.role === 'buyer'
+                      ? 'border-brand-blue bg-blue-50/60 ring-2 ring-brand-blue/20 text-brand-blue'
+                      : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                    formData.role === 'buyer' ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    🛍️
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">Buy Items</p>
+                    <p className="text-[10px] text-slate-500">Student Buyer</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'seller' })}
+                  className={`p-3.5 rounded-2xl border text-left flex items-center space-x-3 transition-all ${
+                    formData.role === 'seller'
+                      ? 'border-brand-orange bg-orange-50/60 ring-2 ring-brand-orange/20 text-brand-orange'
+                      : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                    formData.role === 'seller' ? 'bg-brand-orange text-white' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    🏪
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">Sell Items</p>
+                    <p className="text-[10px] text-slate-500">Student Seller</p>
+                  </div>
+                </button>
               </div>
             </div>
 
+            {/* Full Name */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Phone Number <span className="text-rose-500">*</span>
+              <label htmlFor="full_name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                Full Name
               </label>
               <div className="relative">
                 <input
+                  id="full_name"
+                  name="full_name"
                   type="text"
                   required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+256 7..."
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-blue focus:outline-none"
+                  placeholder="e.g. John Mukasa"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all"
                 />
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Email Address */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Hall / Residence
+              <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                Campus Email Address
               </label>
-              <select
-                value={residence}
-                onChange={(e) => setResidence(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-blue focus:outline-none bg-white"
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="e.g. student@ucu.ac.ug"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all"
+                />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              </div>
+            </div>
+
+            {/* Phone Number & Student ID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="phone" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    placeholder="+256 700 000000"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all"
+                  />
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="student_id" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Student Registration No.
+                </label>
+                <div className="relative">
+                  <input
+                    id="student_id"
+                    name="student_id"
+                    type="text"
+                    placeholder="e.g. S23/BCS/041"
+                    value={formData.student_id}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all"
+                  />
+                  <BadgeCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Campus Residence */}
+            <div>
+              <label htmlFor="campus_residence" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                Campus Residence / Hall
+              </label>
+              <div className="relative">
+                <select
+                  id="campus_residence"
+                  name="campus_residence"
+                  value={formData.campus_residence}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent bg-white transition-all appearance-none"
+                >
+                  {residenceOptions.map(res => (
+                    <option key={res} value={res}>{res}</option>
+                  ))}
+                </select>
+                <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 px-4 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-extrabold text-sm shadow-lg hover:shadow-orange-500/30 transition-all flex items-center justify-center space-x-2 disabled:opacity-70"
+            >
+              {loading ? (
+                <span>Registering Account...</span>
+              ) : (
+                <>
+                  <span>Register & Send Verification Code</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Step 2: OTP Verification Form */}
+        {step === 2 && (
+          <form onSubmit={handleVerifyOtp} className="space-y-5">
+            <div>
+              <label htmlFor="reg-otp" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                6-Digit Verification Code (OTP)
+              </label>
+              <div className="relative">
+                <input
+                  id="reg-otp"
+                  type="text"
+                  maxLength={6}
+                  required
+                  placeholder="Enter 6-digit code"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  className="w-full py-3.5 px-4 rounded-xl border border-slate-300 text-center font-mono font-black text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || otp.length !== 6}
+              className="w-full py-3.5 px-4 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-extrabold text-sm shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center space-x-2 disabled:opacity-70"
+            >
+              {loading ? (
+                <span>Verifying Account...</span>
+              ) : (
+                <>
+                  <span>Confirm Code & Enter Marketplace</span>
+                  <CheckCircle className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="text-xs text-slate-500 hover:text-slate-700 font-medium"
               >
-                {halls.map((h) => (
-                  <option key={h} value={h}>{h}</option>
-                ))}
-              </select>
+                ← Back to Edit Registration Details
+              </button>
             </div>
+          </form>
+        )}
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Student ID / Reg No. (Optional)
-              </label>
-              <input
-                type="text"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                placeholder="e.g. S24/BSIT/099"
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-blue focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Password (Min 6 Characters) <span className="text-rose-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-blue focus:outline-none"
-              />
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`w-full py-3.5 rounded-xl text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 ${
-              role === 'seller'
-                ? 'bg-brand-orange hover:bg-orange-600 hover:shadow-orange-500/25'
-                : 'bg-brand-blue hover:bg-blue-600 hover:shadow-blue-500/25'
-            }`}
-          >
-            {submitting ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <span>Create Campus {role === 'seller' ? 'Seller' : 'Buyer'} Account</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Footer Link */}
-        <div className="text-center text-xs text-slate-500">
-          Already have an account?{' '}
-          <Link to="/login" className="font-bold text-brand-blue hover:underline">
-            Sign In here
-          </Link>
+        {/* Footer Navigation */}
+        <div className="pt-6 border-t border-slate-100 text-center">
+          <p className="text-xs text-slate-600">
+            Already have a campus account?{' '}
+            <Link to="/login" className="font-bold text-brand-blue hover:text-blue-600">
+              Log In with OTP
+            </Link>
+          </p>
         </div>
 
       </div>

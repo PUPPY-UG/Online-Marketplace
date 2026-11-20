@@ -23,7 +23,10 @@ function loadEmbeddedData() {
   ensureEmbeddedData();
   try {
     const raw = fs.readFileSync(dataFile, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed.email_notifications) parsed.email_notifications = [];
+    if (!parsed.otp_verifications) parsed.otp_verifications = [];
+    return parsed;
   } catch (err) {
     return JSON.parse(JSON.stringify(initialSeed));
   }
@@ -238,6 +241,36 @@ function executeEmbeddedQuery(sql, params = []) {
       }
       return [reviews, []];
     }
+
+    // Handling EMAIL_NOTIFICATIONS
+    if (upper.includes('FROM EMAIL_NOTIFICATIONS') || upper.includes('FROM `EMAIL_NOTIFICATIONS`')) {
+      let notifs = [...(data.email_notifications || [])];
+      if (upper.includes('WHERE ORDER_ID = ? AND NOTIFICATION_TYPE = ?')) {
+        const orderId = Number(params[0]);
+        const type = String(params[1]);
+        notifs = notifs.filter(n => n.order_id === orderId && n.notification_type === type);
+      } else if (upper.includes('WHERE ORDER_ID = ?')) {
+        const orderId = Number(params[0]);
+        notifs = notifs.filter(n => n.order_id === orderId);
+      } else if (upper.includes('WHERE RECIPIENT_EMAIL = ?')) {
+        const email = String(params[0]).toLowerCase();
+        notifs = notifs.filter(n => n.recipient_email && n.recipient_email.toLowerCase() === email);
+      }
+      return [notifs, []];
+    }
+
+    // Handling OTP_VERIFICATIONS
+    if (upper.includes('FROM OTP_VERIFICATIONS') || upper.includes('FROM `OTP_VERIFICATIONS`')) {
+      let otps = [...(data.otp_verifications || [])];
+      if (upper.includes('WHERE EMAIL = ? AND VERIFIED_STATUS = 0')) {
+        const email = String(params[0]).toLowerCase();
+        otps = otps.filter(o => o.email.toLowerCase() === email && !o.verified_status);
+      } else if (upper.includes('WHERE EMAIL = ?')) {
+        const email = String(params[0]).toLowerCase();
+        otps = otps.filter(o => o.email.toLowerCase() === email);
+      }
+      return [otps, []];
+    }
   }
 
   // 2. INSERT queries
@@ -332,19 +365,29 @@ function executeEmbeddedQuery(sql, params = []) {
 
     if (upper.includes('INTO ORDERS') || upper.includes('INTO `ORDERS`')) {
       const newId = (data.orders.length ? Math.max(...data.orders.map(o => o.id)) : 0) + 1;
-      const [order_ref, buyer_id, total_amount, order_status, payment_status, payment_method, pickup_location, buyer_name, buyer_phone, notes] = params;
+      let order_ref, buyer_id, buyer_email, total_amount, order_status, payment_status, payment_method, pickup_location, buyer_name, buyer_phone, notes;
+      if (params.length >= 11) {
+        [order_ref, buyer_id, buyer_email, total_amount, order_status, payment_status, payment_method, pickup_location, buyer_name, buyer_phone, notes] = params;
+      } else {
+        [order_ref, buyer_id, total_amount, order_status, payment_status, payment_method, pickup_location, buyer_name, buyer_phone, notes] = params;
+        const buyer = data.users.find(u => u.id === Number(buyer_id));
+        buyer_email = buyer ? buyer.email : 'student@ucu.ac.ug';
+      }
       const newOrder = {
         id: newId,
         order_ref,
         buyer_id: Number(buyer_id),
+        buyer_email: buyer_email || '',
         total_amount: Number(total_amount),
-        order_status: order_status || 'Pending',
-        payment_status: payment_status || 'Unpaid',
-        payment_method: payment_method || 'Mobile Money (Simulation)',
+        order_status: order_status || 'Paid',
+        payment_status: payment_status || 'Paid',
+        payment_method: payment_method || 'MTN Mobile Money',
         pickup_location,
         buyer_name,
         buyer_phone,
         notes: notes || '',
+        ready_for_pickup_date: null,
+        completed_date: null,
         created_at: new Date().toISOString()
       };
       data.orders.push(newOrder);
@@ -360,6 +403,7 @@ function executeEmbeddedQuery(sql, params = []) {
         order_id: Number(order_id),
         transaction_ref,
         amount: Number(amount),
+        currency: 'UGX',
         payment_method,
         phone_number: phone_number || null,
         network_provider: network_provider || null,
@@ -368,6 +412,42 @@ function executeEmbeddedQuery(sql, params = []) {
         paid_at: new Date().toISOString()
       };
       data.payments.push(newPayment);
+      saveEmbeddedData(data);
+      return [{ insertId: newId, affectedRows: 1 }, []];
+    }
+
+    if (upper.includes('INTO EMAIL_NOTIFICATIONS') || upper.includes('INTO `EMAIL_NOTIFICATIONS`')) {
+      if (!data.email_notifications) data.email_notifications = [];
+      const newId = (data.email_notifications.length ? Math.max(...data.email_notifications.map(n => n.id)) : 0) + 1;
+      const [order_id, recipient_email, notification_type, delivery_status, error_message] = params;
+      const newNotif = {
+        id: newId,
+        order_id: order_id ? Number(order_id) : null,
+        recipient_email,
+        notification_type,
+        delivery_status: delivery_status || 'Sent',
+        sent_date: new Date().toISOString(),
+        error_message: error_message || null
+      };
+      data.email_notifications.push(newNotif);
+      saveEmbeddedData(data);
+      return [{ insertId: newId, affectedRows: 1 }, []];
+    }
+
+    if (upper.includes('INTO OTP_VERIFICATIONS') || upper.includes('INTO `OTP_VERIFICATIONS`')) {
+      if (!data.otp_verifications) data.otp_verifications = [];
+      const newId = (data.otp_verifications.length ? Math.max(...data.otp_verifications.map(o => o.id)) : 0) + 1;
+      const [user_id, email, otp_hash, expiry_time] = params;
+      const newOtp = {
+        id: newId,
+        user_id: user_id ? Number(user_id) : null,
+        email: String(email).toLowerCase(),
+        otp_hash,
+        expiry_time,
+        verified_status: false,
+        created_at: new Date().toISOString()
+      };
+      data.otp_verifications.push(newOtp);
       saveEmbeddedData(data);
       return [{ insertId: newId, affectedRows: 1 }, []];
     }
@@ -392,6 +472,16 @@ function executeEmbeddedQuery(sql, params = []) {
 
   // 3. UPDATE queries
   if (upper.startsWith('UPDATE')) {
+    if (upper.includes('UPDATE OTP_VERIFICATIONS') || upper.includes('UPDATE `OTP_VERIFICATIONS`')) {
+      const id = Number(params[params.length - 1]);
+      const otpRec = data.otp_verifications.find(o => o.id === id);
+      if (otpRec) {
+        otpRec.verified_status = true;
+        saveEmbeddedData(data);
+        return [{ affectedRows: 1 }, []];
+      }
+    }
+
     if (upper.includes('UPDATE ITEMS') || upper.includes('UPDATE `ITEMS`')) {
       const id = Number(params[params.length - 1]);
       const item = data.items.find(i => i.id === id);
@@ -424,6 +514,12 @@ function executeEmbeddedQuery(sql, params = []) {
         } else if (upper.includes('PAYMENT_STATUS = ?')) {
           order.payment_status = params[0];
         }
+        if (order.order_status === 'Ready for Pickup' && !order.ready_for_pickup_date) {
+          order.ready_for_pickup_date = new Date().toISOString();
+        }
+        if (order.order_status === 'Completed' && !order.completed_date) {
+          order.completed_date = new Date().toISOString();
+        }
         order.updated_at = new Date().toISOString();
         saveEmbeddedData(data);
         return [{ affectedRows: 1 }, []];
@@ -446,6 +542,9 @@ function executeEmbeddedQuery(sql, params = []) {
       const user = data.users.find(u => u.id === id);
       if (user) {
         if (upper.includes('STATUS = ?')) user.status = params[0];
+        if (upper.includes('EMAIL_VERIFIED = ?') || upper.includes('EMAIL_VERIFIED = 1')) {
+          user.email_verified = true;
+        }
         if (upper.includes('FULL_NAME = ?')) {
           const [full_name, phone, campus_residence, student_id] = params;
           user.full_name = full_name;

@@ -13,6 +13,8 @@ router.get('/stats', async (req, res) => {
     const [items] = await db.query('SELECT id, is_available, status, price, category FROM items');
     const [orders] = await db.query('SELECT id, total_amount, order_status, payment_status, created_at FROM orders');
     const [reviews] = await db.query('SELECT rating FROM reviews');
+    const [payments] = await db.query('SELECT id, amount, payment_method, status FROM payments');
+    const [emails] = await db.query('SELECT id, delivery_status FROM email_notifications');
 
     const totalUsers = users.length;
     const totalBuyers = users.filter(u => u.role === 'buyer').length;
@@ -24,8 +26,11 @@ router.get('/stats', async (req, res) => {
     const soldOrUnavailable = totalProducts - availableProducts;
 
     const totalOrders = orders.length;
+    const paidOrders = orders.filter(o => o.payment_status === 'Paid').length;
+    const ordersAwaitingPickup = orders.filter(o => o.order_status === 'Ready for Pickup').length;
     const completedOrders = orders.filter(o => o.order_status === 'Completed').length;
-    const pendingOrders = orders.filter(o => o.order_status === 'Pending' || o.order_status === 'Paid' || o.order_status === 'Ready for Pickup').length;
+    const pendingOrders = orders.filter(o => o.order_status === 'Pending Payment' || o.order_status === 'Paid' || o.order_status === 'Accepted' || o.order_status === 'Preparing').length;
+    
     const totalSalesVolume = orders
       .filter(o => o.order_status === 'Completed' || o.payment_status === 'Paid')
       .reduce((sum, o) => sum + Number(o.total_amount), 0);
@@ -45,8 +50,12 @@ router.get('/stats', async (req, res) => {
         availableProducts,
         soldOrUnavailable,
         totalOrders,
+        paidOrders,
+        ordersAwaitingPickup,
         completedOrders,
         pendingOrders,
+        totalPayments: payments.length,
+        totalEmailsSent: emails.filter(e => e.delivery_status === 'Sent').length,
         totalSalesVolume,
         totalReviews: reviews.length,
         averageRating: Number(averageRating)
@@ -62,7 +71,7 @@ router.get('/stats', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     const [users] = await db.query(`
-      SELECT id, full_name, email, phone, role, campus_residence, student_id, status, created_at
+      SELECT id, full_name, email, phone, role, campus_residence, student_id, email_verified, status, created_at
       FROM users
       ORDER BY id ASC
     `);
@@ -146,9 +155,8 @@ router.patch('/products/:id/moderate', async (req, res) => {
 router.get('/orders', async (req, res) => {
   try {
     const [orders] = await db.query(`
-      SELECT orders.*, users.email AS buyer_email
+      SELECT orders.*
       FROM orders
-      JOIN users ON orders.buyer_id = users.id
       ORDER BY orders.created_at DESC
     `);
 
@@ -158,6 +166,46 @@ router.get('/orders', async (req, res) => {
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to retrieve orders.' });
+  }
+});
+
+// GET /api/admin/payments - List all payment records (MTN, Airtel, PayPal)
+router.get('/payments', async (req, res) => {
+  try {
+    const [payments] = await db.query(`
+      SELECT payments.*, orders.order_ref, orders.buyer_name, orders.buyer_email
+      FROM payments
+      LEFT JOIN orders ON payments.order_id = orders.id
+      ORDER BY payments.id DESC
+    `);
+
+    return res.status(200).json({
+      success: true,
+      payments
+    });
+  } catch (err) {
+    console.error('Admin payments error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve payment records.' });
+  }
+});
+
+// GET /api/admin/emails - List all email notification audit logs
+router.get('/emails', async (req, res) => {
+  try {
+    const [emails] = await db.query(`
+      SELECT email_notifications.*, orders.order_ref
+      FROM email_notifications
+      LEFT JOIN orders ON email_notifications.order_id = orders.id
+      ORDER BY email_notifications.id DESC
+    `);
+
+    return res.status(200).json({
+      success: true,
+      emails
+    });
+  } catch (err) {
+    console.error('Admin emails error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve email notification records.' });
   }
 });
 

@@ -6,21 +6,19 @@ const AuthContext = createContext();
 export const DEMO_CREDENTIALS = {
   buyer: {
     email: 'brian.buyer@ucu.ac.ug',
-    password: 'UniTrade@2026',
     name: 'Brian Okello',
     role: 'buyer',
     residence: 'Sabiti Hall'
   },
   seller: {
     email: 'grace.seller@ucu.ac.ug',
-    password: 'UniTrade@2026',
     name: 'Grace Akello',
     role: 'seller',
     residence: 'Agape Hall'
   },
   admin: {
     email: 'admin@unitrade.ucu.ac.ug',
-    password: 'UniTrade@2026',
+    password: 'Admin@123',
     name: 'Dennis Kibirige (Admin)',
     role: 'admin',
     residence: 'Administration Building'
@@ -59,6 +57,33 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []);
 
+  // Passwordless Email OTP Login for Buyers & Sellers
+  const requestOTP = async (email) => {
+    return await api.requestOTP(email);
+  };
+
+  const verifyOTP = async (email, otp) => {
+    const res = await api.verifyOTP(email, otp);
+    if (res.success && res.token) {
+      setAuthToken(res.token);
+      setUser(res.user);
+      return res.user;
+    }
+    throw new Error(res.message || 'OTP verification failed');
+  };
+
+  // Dedicated Password-Based Login for System Administrators
+  const adminLogin = async (email, password) => {
+    const res = await api.adminLogin({ email, password });
+    if (res.success && res.token) {
+      setAuthToken(res.token);
+      setUser(res.user);
+      return res.user;
+    }
+    throw new Error(res.message || 'Administrator authentication failed');
+  };
+
+  // Backward compatible login method
   const login = async (email, password) => {
     const res = await api.login({ email, password });
     if (res.success && res.token) {
@@ -71,12 +96,7 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     const res = await api.register(userData);
-    if (res.success && res.token) {
-      setAuthToken(res.token);
-      setUser(res.user);
-      return res.user;
-    }
-    throw new Error(res.message || 'Registration failed');
+    return res;
   };
 
   const logout = () => {
@@ -88,13 +108,6 @@ export function AuthProvider({ children }) {
     setUser(prev => (prev ? { ...prev, ...updatedFields } : null));
   };
 
-  const quickLogin = async (roleKey) => {
-    const creds = DEMO_CREDENTIALS[roleKey];
-    if (creds) {
-      return await login(creds.email, creds.password);
-    }
-  };
-
   return (
     <AuthContext.Provider value={{
       user,
@@ -103,11 +116,13 @@ export function AuthProvider({ children }) {
       isBuyer: user?.role === 'buyer',
       isSeller: user?.role === 'seller',
       isAdmin: user?.role === 'admin',
+      requestOTP,
+      verifyOTP,
+      adminLogin,
       login,
       register,
       logout,
-      updateUser,
-      quickLogin
+      updateUser
     }}>
       {children}
     </AuthContext.Provider>

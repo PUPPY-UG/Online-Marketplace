@@ -14,6 +14,7 @@ const orderRoutes = require('./routes/orders.routes');
 const reviewRoutes = require('./routes/reviews.routes');
 const adminRoutes = require('./routes/admin.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const paymentRoutes = require('./routes/payments.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,6 +54,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Static hosting for built React frontend
 const frontendDist = path.resolve(__dirname, '../../frontend/dist');
