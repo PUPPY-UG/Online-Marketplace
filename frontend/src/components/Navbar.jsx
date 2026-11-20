@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import ucuLogo from '../assets/ucu-logo.png';
 
 export default function Navbar() {
   const { user, isAuthenticated, isBuyer, isSeller, isAdmin, logout } = useAuth();
@@ -65,8 +66,8 @@ export default function Navbar() {
           
           {/* Brand Logo */}
           <Link to="/" className="flex items-center space-x-3 flex-shrink-0 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-brand-blue to-brand-orange flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <ShoppingBag className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20">
+              <img src={ucuLogo} alt="Uganda Christian University Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center space-x-1">
