@@ -34,12 +34,12 @@ export default function Home() {
         <img 
           src={heroBg} 
           alt="UniTrade Festive Campus Background" 
-          className="w-full h-full object-cover object-[center_32%] filter brightness-95 contrast-105 transform translate-y-10 sm:translate-y-16 scale-105"
+          className="w-full h-full object-cover object-[center_35%] filter brightness-95 contrast-105 transform scale-105 translate-y-16 sm:translate-y-24 md:translate-y-28"
         />
         {/* Balanced Dark Vignette Overlay preserving visual identity & providing text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/70 via-navy-950/45 to-navy-950/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/70 via-navy-950/30 to-navy-950/80"></div>
         {/* Subtle center highlight */}
-        <div className="absolute inset-0 bg-radial from-transparent via-navy-950/20 to-navy-950/60 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-radial from-transparent via-transparent to-navy-950/60 pointer-events-none"></div>
       </div>
 
       {/* Hero Content Section */}
@@ -85,8 +85,8 @@ export default function Home() {
             </form>
           </div>
 
-          {/* Four Feature Cards */}
-          <div className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+          {/* Four Feature Cards - Ample top spacing so "merry christmas" is 100% visible */}
+          <div className="mt-24 sm:mt-32 lg:mt-36 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
             
             {/* Card 1: Zero Scams */}
             <div className="bg-slate-900/75 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-brand-orange/60 transition-all hover:bg-slate-900/85">
