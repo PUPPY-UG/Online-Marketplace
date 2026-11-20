@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import heroBg from '../assets/hero-bg.jpg';
+import logo from '../assets/logo.png';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -97,10 +98,14 @@ export default function Home() {
                 <ShieldCheck className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Zero Scams</span>
               </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
               <p className="text-xs text-slate-200 leading-relaxed font-medium">
                 Verified student listings replacing chaotic WhatsApp groups.
               </p>
             </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
 
             {/* Card 2: Campus Pickup */}
             <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-blue-400/60 transition-all hover:bg-slate-900/85">
@@ -108,10 +113,14 @@ export default function Home() {
                 <MapPin className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Campus Pickup</span>
               </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
               <p className="text-xs text-slate-200 leading-relaxed font-medium">
                 Meet at Hamu Mukasa Library or Guild Canteen easily.
               </p>
             </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
 
             {/* Card 3: UGX Student Deals */}
             <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-emerald-400/60 transition-all hover:bg-slate-900/85">
@@ -119,10 +128,14 @@ export default function Home() {
                 <Coins className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">UGX Student Deals</span>
               </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
               <p className="text-xs text-slate-200 leading-relaxed font-medium">
                 Unbeatable prices on used textbooks and hostel items.
               </p>
             </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
 
             {/* Card 4: Instant Trade */}
             <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-purple-400/60 transition-all hover:bg-slate-900/85">
@@ -130,10 +143,14 @@ export default function Home() {
                 <Clock className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Instant Trade</span>
               </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
               <p className="text-xs text-slate-200 leading-relaxed font-medium">
                 Fast handover between lectures right on campus.
               </p>
             </div>
+            <img src={logo} alt="UniTrade logo" className="mx-auto mb-4 h-12 w-auto" />
+
 
           </div>
 
