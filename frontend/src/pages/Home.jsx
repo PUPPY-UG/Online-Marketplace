@@ -85,11 +85,11 @@ export default function Home() {
             </form>
           </div>
 
-          {/* Four Feature Cards - Ample top spacing so "merry christmas" is 100% visible */}
-          <div className="mt-24 sm:mt-32 lg:mt-36 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+          {/* Four Feature Cards - Placed with ample spacing below the Christmas ornament so "merry christmas" is 100% visible */}
+          <div className="mt-32 sm:mt-44 md:mt-48 lg:mt-52 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
             
             {/* Card 1: Zero Scams */}
-            <div className="bg-slate-900/75 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-brand-orange/60 transition-all hover:bg-slate-900/85">
+            <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-brand-orange/60 transition-all hover:bg-slate-900/85">
               <div className="flex items-center space-x-2 text-brand-orange mb-1.5">
                 <ShieldCheck className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Zero Scams</span>
@@ -100,7 +100,7 @@ export default function Home() {
             </div>
 
             {/* Card 2: Campus Pickup */}
-            <div className="bg-slate-900/80 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-blue-400/60 transition-all hover:bg-slate-900/90">
+            <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-blue-400/60 transition-all hover:bg-slate-900/85">
               <div className="flex items-center space-x-2 text-blue-400 mb-1.5">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Campus Pickup</span>
@@ -111,7 +111,7 @@ export default function Home() {
             </div>
 
             {/* Card 3: UGX Student Deals */}
-            <div className="bg-slate-900/80 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-emerald-400/60 transition-all hover:bg-slate-900/90">
+            <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-emerald-400/60 transition-all hover:bg-slate-900/85">
               <div className="flex items-center space-x-2 text-emerald-400 mb-1.5">
                 <Coins className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">UGX Student Deals</span>
@@ -122,7 +122,7 @@ export default function Home() {
             </div>
 
             {/* Card 4: Instant Trade */}
-            <div className="bg-slate-900/80 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-purple-400/60 transition-all hover:bg-slate-900/90">
+            <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-purple-400/60 transition-all hover:bg-slate-900/85">
               <div className="flex items-center space-x-2 text-purple-400 mb-1.5">
                 <Clock className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Instant Trade</span>
