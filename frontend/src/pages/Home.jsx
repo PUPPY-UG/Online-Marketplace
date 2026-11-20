@@ -29,17 +29,17 @@ export default function Home() {
   return (
     <div className="relative min-h-[calc(100vh-140px)] flex flex-col justify-center overflow-hidden bg-navy-950 text-white">
       
-      {/* Background Image Layer - Covers the whole landing page without losing its visual sight */}
-      <div className="absolute inset-0 z-0">
+      {/* Background Image Layer - Shifted so "merry christmas" is clearly visible */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <img 
           src={heroBg} 
           alt="UniTrade Festive Campus Background" 
-          className="w-full h-full object-cover object-center filter brightness-90 contrast-105"
+          className="w-full h-full object-cover object-[center_32%] filter brightness-95 contrast-105 transform translate-y-10 sm:translate-y-16 scale-105"
         />
         {/* Balanced Dark Vignette Overlay preserving visual identity & providing text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/75 via-navy-950/55 to-navy-950/80"></div>
-        {/* Subtle radial center highlight to keep the bauble and center vibrant */}
-        <div className="absolute inset-0 bg-radial-gradient from-transparent via-navy-950/30 to-navy-950/60 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/70 via-navy-950/45 to-navy-950/80"></div>
+        {/* Subtle center highlight */}
+        <div className="absolute inset-0 bg-radial from-transparent via-navy-950/20 to-navy-950/60 pointer-events-none"></div>
       </div>
 
       {/* Hero Content Section */}
@@ -66,15 +66,15 @@ export default function Home() {
           </p>
 
           {/* Prominent Search Bar */}
-          <div className="mt-8 max-w-2xl mx-auto">
-            <form onSubmit={handleHeroSearch} className="relative flex items-center shadow-2xl rounded-2xl bg-white p-2 border border-white/30">
+          <div className="mt-6 max-w-2xl mx-auto">
+            <form onSubmit={handleHeroSearch} className="relative flex items-center shadow-2xl rounded-2xl bg-white/95 backdrop-blur-md p-2 border border-white/40">
               <Search className="w-5 h-5 text-slate-400 ml-3 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="What are you looking for today? (e.g. Calculus, HP Laptop, Blazer...)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2.5 text-slate-800 text-sm focus:outline-none placeholder-slate-400 font-medium"
+                className="w-full px-4 py-2.5 text-slate-800 text-sm focus:outline-none placeholder-slate-400 font-medium bg-transparent"
               />
               <button
                 type="submit"
@@ -86,10 +86,10 @@ export default function Home() {
           </div>
 
           {/* Four Feature Cards */}
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+          <div className="mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
             
             {/* Card 1: Zero Scams */}
-            <div className="bg-slate-900/80 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-brand-orange/60 transition-all hover:bg-slate-900/90">
+            <div className="bg-slate-900/75 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-brand-orange/60 transition-all hover:bg-slate-900/85">
               <div className="flex items-center space-x-2 text-brand-orange mb-1.5">
                 <ShieldCheck className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">Zero Scams</span>
