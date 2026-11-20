@@ -34,7 +34,7 @@ export default function Home() {
         <img 
           src={heroBg} 
           alt="UniTrade Festive Campus Background" 
-          className="w-full h-full object-cover object-[center_30%] filter brightness-95 contrast-105 transform scale-95 translate-y-4 sm:translate-y-8"
+          className="w-full h-full object-cover object-[center_45%] filter brightness-95 contrast-105"
         />
         {/* Balanced Dark Vignette Overlay preserving visual identity & providing text contrast */}
         <div className="absolute inset-0 bg-gradient-to-b from-navy-950/70 via-navy-950/20 to-navy-950/80"></div>
@@ -85,8 +85,11 @@ export default function Home() {
             </form>
           </div>
 
-          {/* Four Feature Cards - Positioned with generous spacing below the ornament so 'merry christmas' is 100% visible */}
-          <div className="mt-40 sm:mt-48 md:mt-52 lg:mt-56 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+          {/* Four Feature Cards - Positioned comfortably below the ornament with 18rem margin so BOTH 'merry' and 'christmas' are 100% clearly visible */}
+          <div 
+            style={{ marginTop: '18rem' }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left"
+          >
             
             {/* Card 1: Zero Scams */}
             <div className="bg-slate-900/70 border border-white/15 rounded-2xl p-4 backdrop-blur-md shadow-xl hover:border-brand-orange/60 transition-all hover:bg-slate-900/85">
@@ -135,7 +138,7 @@ export default function Home() {
           </div>
 
           {/* Quick Action Navigation Shortcuts */}
-          <div className="mt-10 flex flex-wrap justify-center items-center gap-3">
+          <div className="mt-10 flex flex-wrap justify-center items-center gap-3 pb-16">
             <Link
               to="/products"
               className="px-6 py-2.5 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-orange-500/25 flex items-center space-x-2"
