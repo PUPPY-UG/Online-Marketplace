@@ -7,12 +7,12 @@ const INITIAL_DATA = {
   users: [
     {
       id: 1,
-      full_name: 'Administrator',
-      email: 'admin@unitrade.ucu.ac.ug',
-      phone: '0763218182',
+      full_name: 'Rinah Amumpeire',
+      email: 'rinahamumpeire4@gmail.com',
+      phone: '0706610966',
       role: 'admin',
       campus_residence: 'Main Campus Administration Building',
-      student_id: 'ADM/UCU/001',
+      student_id: 'KBA7674',
       status: 'active'
     }
   ],

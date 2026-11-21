@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { User, Mail, Phone, MapPin, BadgeCheck, ArrowRight, CheckCircle, AlertCircle, Sparkles, KeyRound } from 'lucide-react';
+import { User, Mail, Phone, MapPin, BadgeCheck, ArrowRight, CheckCircle, AlertCircle, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register({ onToast }) {
@@ -18,7 +18,7 @@ export default function Register({ onToast }) {
 
   const [step, setStep] = useState(1); // 1 = Registration Form, 2 = Verify OTP
   const [otp, setOtp] = useState('');
-  const [demoOtpHint, setDemoOtpHint] = useState('');
+  const [otpEmailSent, setOtpEmailSent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -50,9 +50,7 @@ export default function Register({ onToast }) {
 
       if (res.success) {
         setStep(2);
-        if (res.demo_otp) {
-          setDemoOtpHint(res.demo_otp);
-        }
+        setOtpEmailSent(formData.email.trim().toLowerCase());
         if (onToast) onToast(res.message || 'Registration initiated! Please enter your verification code.', 'success');
       } else {
         setError(res.message || 'Registration failed.');
@@ -120,20 +118,11 @@ export default function Register({ onToast }) {
           </div>
         )}
 
-        {/* Demo OTP Helper Banner (when available) */}
-        {step === 2 && demoOtpHint && (
-          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Academic Demo Code: <strong className="font-mono text-sm tracking-wider font-bold">{demoOtpHint}</strong></span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setOtp(demoOtpHint)}
-              className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold text-[10px] hover:bg-emerald-700 transition-colors shadow-sm"
-            >
-              Autofill
-            </button>
+        {/* OTP Sent Confirmation Banner */}
+        {step === 2 && otpEmailSent && (
+          <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-800 text-xs flex items-center space-x-2.5">
+            <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <span>A 6-digit verification code has been sent to <strong>{otpEmailSent}</strong>. Please check your inbox.</span>
           </div>
         )}
 
