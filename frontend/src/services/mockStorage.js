@@ -9,7 +9,7 @@ const INITIAL_DATA = {
       id: 1,
       full_name: 'Dennis Kibirige (Admin)',
       email: 'admin@unitrade.ucu.ac.ug',
-      phone: '+256 772 100200',
+      phone: '0763218182',
       role: 'admin',
       campus_residence: 'Main Campus Administration Building',
       student_id: 'ADM/UCU/001',

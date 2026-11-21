@@ -114,7 +114,7 @@ export default function AdminDashboard({ onToast }) {
             UniTrade Campus Administration
           </h1>
           <p className="text-xs sm:text-sm text-slate-300">
-            Uganda Christian University (UCU) • Course MGT3151 E-Commerce Academic Project Monitor
+            Uganda Christian University (UCU) • Campus Administration
           </p>
         </div>
 

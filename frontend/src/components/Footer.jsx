@@ -21,11 +21,6 @@ export default function Footer() {
             <p className="text-xs text-slate-400 leading-relaxed">
               UniTrade is a dedicated campus e-commerce marketplace designed exclusively for students at Uganda Christian University to buy and sell used textbooks, electronics, clothing, and hostel essentials securely within the campus community.
             </p>
-            <div className="pt-2 text-xs text-slate-400 space-y-1">
-              <p><strong className="text-slate-200">Institution:</strong> Uganda Christian University (UCU)</p>
-              <p><strong className="text-slate-200">Course:</strong> MGT3151 E-Business, E-Commerce & E-Governance</p>
-              <p><strong className="text-slate-200">Project Option:</strong> Option B – E-Commerce</p>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -86,24 +81,19 @@ export default function Footer() {
 
           {/* Campus Location & Contacts */}
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">UCU Mukono Contacts</h3>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">CONTACT</h3>
             <div className="space-y-2.5 text-xs text-slate-400">
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-brand-orange flex-shrink-0 mt-0.5" />
-                <span>Uganda Christian University, Bishop Tucker Road, Mukono, Uganda</span>
+                <span>Uganda christian university , Bishop Barham University college</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-brand-blue flex-shrink-0" />
-                <span>support.unitrade@ucu.ac.ug</span>
+                <span>bbuc@bbuc.ucu.ac.ug</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>+256 772 100 200 (Campus Help Desk)</span>
-              </div>
-              <div className="pt-2">
-                <span className="inline-block px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] font-medium">
-                  Academic Project MVP • Demo Only
-                </span>
+                <span>0763218182</span>
               </div>
             </div>
           </div>
@@ -112,7 +102,7 @@ export default function Footer() {
 
         {/* Bottom Disclaimer */}
         <div className="pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
-          <p>© 2026 UniTrade Campus Marketplace. Developed for Uganda Christian University Course MGT3151.</p>
+          <p>© 2026 UniTrade Campus Marketplace. Developed for Uganda Christian University.</p>
           <div className="flex space-x-4 text-slate-400">
             <span>Simulated Payments (MTN MoMo & Airtel)</span>
             <span>•</span>

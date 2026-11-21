@@ -48,8 +48,6 @@ export default function Navbar() {
           <div className="flex items-center space-x-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="font-medium text-slate-200">Uganda Christian University (UCU)</span>
-            <span className="text-slate-400">|</span>
-            <span className="text-slate-300">Course: MGT3151 E-Commerce MVP</span>
           </div>
           <div className="flex items-center space-x-4 text-xs">
             <span className="text-amber-400 font-medium">Safe Campus Trading: Meet in public places (Library, Canteen)</span>
