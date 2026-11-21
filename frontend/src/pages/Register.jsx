@@ -12,7 +12,7 @@ export default function Register({ onToast }) {
     email: '',
     phone: '',
     role: initialRole,
-    campus_residence: 'Sabiti Hall',
+    campus_residence: '',
     student_id: ''
   });
 
@@ -91,17 +91,7 @@ export default function Register({ onToast }) {
     }
   };
 
-  const residenceOptions = [
-    'Sabiti Hall (Male)',
-    'Agape Hall (Female)',
-    'Allan Galpin Hall (Male)',
-    'Bishop Tucker Hall (Female)',
-    'Soba Hostel',
-    'Tech Park Hostels',
-    'Bugujju Off-Campus Residency',
-    'Wandegeya / Kauga (Mukono)',
-    'Other Mukono Campus Location'
-  ];
+
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
@@ -285,17 +275,16 @@ export default function Register({ onToast }) {
                 Campus Residence / Hall
               </label>
               <div className="relative">
-                <select
+                <input
+                  type="text"
                   id="campus_residence"
                   name="campus_residence"
+                  required
+                  placeholder="Enter your hall, hostel, or room number..."
                   value={formData.campus_residence}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent bg-white transition-all appearance-none"
-                >
-                  {residenceOptions.map(res => (
-                    <option key={res} value={res}>{res}</option>
-                  ))}
-                </select>
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent transition-all"
+                />
                 <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               </div>
             </div>

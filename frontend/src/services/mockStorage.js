@@ -160,7 +160,7 @@ export const mockStorage = {
       email: cleanEmail,
       phone: userData.phone,
       role: userData.role || 'buyer',
-      campus_residence: userData.campus_residence || 'Sabiti Hall',
+      campus_residence: userData.campus_residence || 'Campus Residence',
       student_id: userData.student_id || null,
       email_verified: false,
       status: 'active'
