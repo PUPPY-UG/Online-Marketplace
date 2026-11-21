@@ -132,9 +132,21 @@ export const api = {
   // Photo Upload
   uploadPhoto: (formData) => {
     if (isStatic) {
-      return Promise.resolve({
-        success: true,
-        imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600'
+      // Convert the uploaded file to a base64 data URL for localStorage storage
+      return new Promise((resolve, reject) => {
+        const file = formData.get('image');
+        if (!file || !(file instanceof File)) {
+          resolve({ success: true, imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600' });
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve({ success: true, imageUrl: e.target.result });
+        };
+        reader.onerror = () => {
+          reject(new Error('Failed to read image file.'));
+        };
+        reader.readAsDataURL(file);
       });
     }
     return request('/upload', { method: 'POST', body: formData });
