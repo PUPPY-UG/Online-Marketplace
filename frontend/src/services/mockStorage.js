@@ -1,481 +1,53 @@
 // Client-Side Database & Mock Gateway for GitHub Pages Static Deployment
 // Automatically activates when running on puppy-ug.github.io
 
-const STORAGE_KEY = 'unitrade_campus_db';
+const STORAGE_KEY = 'unitrade_campus_db_v4_clean';
 
 const INITIAL_DATA = {
   users: [
     {
       id: 1,
-      full_name: 'Dennis Kibirige (Admin)',
+      full_name: 'Administrator',
       email: 'admin@unitrade.ucu.ac.ug',
       phone: '0763218182',
       role: 'admin',
       campus_residence: 'Main Campus Administration Building',
       student_id: 'ADM/UCU/001',
       status: 'active'
-    },
-    {
-      id: 2,
-      full_name: 'Grace Akello',
-      email: 'grace.seller@ucu.ac.ug',
-      phone: '+256 701 445566',
-      role: 'seller',
-      campus_residence: 'Agape Hall, Block B, Room 204',
-      student_id: 'S22/BBA/045',
-      status: 'active'
-    },
-    {
-      id: 3,
-      full_name: 'Emmanuel Kato',
-      email: 'emmanuel.seller@ucu.ac.ug',
-      phone: '+256 782 998877',
-      role: 'seller',
-      campus_residence: 'Soba Hostel, Room 14',
-      student_id: 'S21/BCS/112',
-      status: 'active'
-    },
-    {
-      id: 4,
-      full_name: 'Fiona Tumusiime',
-      email: 'fiona.seller@ucu.ac.ug',
-      phone: '+256 753 112233',
-      role: 'seller',
-      campus_residence: 'Bishop Tucker Hall, Room 12',
-      student_id: 'S23/LAW/088',
-      status: 'active'
-    },
-    {
-      id: 5,
-      full_name: 'Brian Okello',
-      email: 'brian.buyer@ucu.ac.ug',
-      phone: '+256 774 332211',
-      role: 'buyer',
-      campus_residence: 'Sabiti Hall, Room 108',
-      student_id: 'S24/BSIT/019',
-      status: 'active'
-    },
-    {
-      id: 6,
-      full_name: 'Sarah Namubiru',
-      email: 'sarah.buyer@ucu.ac.ug',
-      phone: '+256 705 667788',
-      role: 'buyer',
-      campus_residence: 'Allan Galpin Hall, Room 305',
-      student_id: 'S23/BCOM/210',
-      status: 'active'
-    },
-    {
-      id: 7,
-      full_name: 'David Mukasa',
-      email: 'david.buyer@ucu.ac.ug',
-      phone: '+256 786 554433',
-      role: 'buyer',
-      campus_residence: 'Bugujju Off-Campus Residency',
-      student_id: 'S22/BENG/074',
-      status: 'active'
     }
   ],
-  items: [
-    {
-      id: 1,
-      seller_id: 2,
-      title: 'Principles of Marketing (Kotler & Armstrong) 17th Ed.',
-      description: 'Standard textbook for MGT and BBA business students at UCU. Clean pages with minimal pencil highlights. In excellent condition.',
-      price: 45000,
-      category: 'Textbooks and Academic Materials',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-05 09:00:00'
-    },
-    {
-      id: 2,
-      seller_id: 2,
-      title: 'Business Law & Ethics in East Africa (3rd Edition)',
-      description: 'Essential for Bachelor of Laws and Business Administration coursework. Complete with case summaries and statutes index.',
-      price: 38000,
-      category: 'Textbooks and Academic Materials',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-05 10:15:00'
-    },
-    {
-      id: 3,
-      seller_id: 3,
-      title: 'Calculus: Early Transcendentals (James Stewart 8th Ed.)',
-      description: 'Comprehensive calculus textbook required for engineering, IT, and computer science courses. Includes problem solutions guide.',
-      price: 50000,
-      category: 'Textbooks and Academic Materials',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1532012164546-f432f2e3777a?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-06 14:00:00'
-    },
-    {
-      id: 4,
-      seller_id: 3,
-      title: 'Introduction to Java Programming & Data Structures',
-      description: 'Used for BIT/BCS programming modules. Detailed explanations, object-oriented concepts, algorithm design, and code examples.',
-      price: 55000,
-      category: 'Textbooks and Academic Materials',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-06 15:30:00'
-    },
-    {
-      id: 5,
-      seller_id: 3,
-      title: 'HP Pavilion 15 Laptop (Intel Core i5, 8GB RAM, 512GB SSD)',
-      description: 'Great laptop for research, programming, and online classes. Strong battery health (approx 4.5 hours), genuine Windows 11, with original charger.',
-      price: 1250000,
-      category: 'Electronics and Gadgets',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-07 11:00:00'
-    },
-    {
-      id: 6,
-      seller_id: 2,
-      title: 'Sony WH-CH520 Wireless Bluetooth Headphones',
-      description: 'Comfortable over-ear headphones with 50-hour battery life and quick charge. Ideal for quiet study sessions in Hamu Mukasa Library.',
-      price: 160000,
-      category: 'Electronics and Gadgets',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-07 13:20:00'
-    },
-    {
-      id: 7,
-      seller_id: 3,
-      title: 'Casio fx-991EX Scientific ClassWiz Calculator',
-      description: 'Original scientific calculator with natural textbook display and spreadsheet functions. Approved for university semester exams.',
-      price: 75000,
-      category: 'Electronics and Gadgets',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-08 09:10:00'
-    },
-    {
-      id: 8,
-      seller_id: 4,
-      title: 'Anker 20,000mAh PowerCore Fast-Charging Power Bank',
-      description: 'High capacity external battery pack. Can charge your smartphone 4 to 5 times. Includes dual USB ports and power IQ technology.',
-      price: 95000,
-      category: 'Electronics and Gadgets',
-      condition_state: 'New',
-      image_url: 'https://images.unsplash.com/photo-1609592424361-b541315fcb1f?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-08 14:40:00'
-    },
-    {
-      id: 9,
-      seller_id: 4,
-      title: 'UCU Branded Varsity Jacket (Navy & Gold, Size M)',
-      description: 'Authentic university fleece varsity jacket with embroidered UCU crest. Warm, stylish, and perfect for Mukono evening weather.',
-      price: 85000,
-      category: 'Clothing and Fashion',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-09 10:00:00'
-    },
-    {
-      id: 10,
-      seller_id: 2,
-      title: 'Formal Black Tailored Blazer (Size L)',
-      description: 'Classic two-button formal suit jacket for community worship, class presentations, moot court, and formal university dinners.',
-      price: 60000,
-      category: 'Clothing and Fashion',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1598808503746-f34c53b9323e?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-09 12:30:00'
-    },
-    {
-      id: 11,
-      seller_id: 3,
-      title: 'Timberland Classic Waterproof Leather Boots (Size 42)',
-      description: 'Durable rugged boots suitable for daily campus walking in all weather conditions. Well maintained leather.',
-      price: 180000,
-      category: 'Clothing and Fashion',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-10 15:00:00'
-    },
-    {
-      id: 12,
-      seller_id: 4,
-      title: 'Orthopedic Single Foam Mattress (3x6 ft) + Free Cover',
-      description: 'Comfortable single student mattress used for only one academic semester. Clean, sanitised and includes washable protective cover.',
-      price: 120000,
-      category: 'Furniture and Accommodation Items',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-11 08:30:00'
-    },
-    {
-      id: 13,
-      seller_id: 2,
-      title: 'Compact Wooden Study Desk with Lockable Drawer',
-      description: 'Sturdy wooden table tailored for student rooms and hostels around Mukono. Has a side shelf for notebooks and laptops.',
-      price: 90000,
-      category: 'Furniture and Accommodation Items',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-11 11:45:00'
-    },
-    {
-      id: 14,
-      seller_id: 4,
-      title: 'Electric Hot Plate Stove (Double Burner) for Hostel',
-      description: 'Fast heating double burner stove with temperature control dials. Works efficiently and fits neatly on hostel kitchen countertops.',
-      price: 65000,
-      category: 'Furniture and Accommodation Items',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-12 10:15:00'
-    },
-    {
-      id: 15,
-      seller_id: 3,
-      title: 'Nike Premier Firm-Ground Football Cleats (Size 43)',
-      description: 'Professional football boots with moulded studs for grass pitches. Lightweight traction ideal for campus inter-faculty tournaments.',
-      price: 110000,
-      category: 'Sports and Fitness',
-      condition_state: 'Like New',
-      image_url: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-12 16:00:00'
-    },
-    {
-      id: 16,
-      seller_id: 2,
-      title: 'Pair of 10kg Rubber Coated Hex Dumbbells',
-      description: 'Heavy duty cast iron hex dumbbells with anti-slip ergonomic chrome handles. Does not roll on the floor.',
-      price: 80000,
-      category: 'Sports and Fitness',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-13 13:00:00'
-    },
-    {
-      id: 17,
-      seller_id: 2,
-      title: 'Philips 1.7L Cordless Fast-Boil Electric Kettle',
-      description: 'High performance stainless steel kettle. Boils water in under 3 minutes for tea, coffee, and quick noodles in student hostels.',
-      price: 48000,
-      category: 'Other Campus Essentials',
-      condition_state: 'Used',
-      image_url: 'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-14 09:30:00'
-    },
-    {
-      id: 18,
-      seller_id: 4,
-      title: 'Heavy Duty Campus Laptop Backpack (Water-resistant)',
-      description: 'Spacious backpack with dedicated padded sleeve for 15.6 inch laptop, external USB charging port, and multiple organiser pockets.',
-      price: 55000,
-      category: 'Other Campus Essentials',
-      condition_state: 'New',
-      image_url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80',
-      is_available: true,
-      status: 'active',
-      created_at: '2026-11-14 11:00:00'
-    }
-  ],
-  orders: [
-    {
-      id: 1,
-      order_ref: 'ORD-UCU-2026-001',
-      buyer_id: 5,
-      total_amount: 45000,
-      order_status: 'Completed',
-      payment_status: 'Paid',
-      payment_method: 'MTN Mobile Money',
-      pickup_location: 'Main Library Entrance (Hamu Mukasa Library)',
-      buyer_name: 'Brian Okello',
-      buyer_email: 'brian.okello@ucu.ac.ug',
-      buyer_phone: '+256 774 332211',
-      notes: 'Please bring it near the security desk.',
-      ready_for_pickup_date: '2026-11-15 14:00:00',
-      completed_date: '2026-11-15 16:30:00',
-      created_at: '2026-11-15 11:20:00',
-      updated_at: '2026-11-15 15:40:00'
-    },
-    {
-      id: 2,
-      order_ref: 'ORD-UCU-2026-002',
-      buyer_id: 6,
-      total_amount: 75000,
-      order_status: 'Ready for Pickup',
-      payment_status: 'Paid',
-      payment_method: 'Airtel Money',
-      pickup_location: 'UCU Guild Canteen / Tech Park',
-      buyer_name: 'Sarah Namubiru',
-      buyer_email: 'sarah.namubiru@ucu.ac.ug',
-      buyer_phone: '+256 705 667788',
-      notes: 'Available after 2:00 PM lecture.',
-      ready_for_pickup_date: '2026-11-16 11:30:00',
-      completed_date: null,
-      created_at: '2026-11-16 10:05:00',
-      updated_at: '2026-11-16 12:30:00'
-    },
-    {
-      id: 3,
-      order_ref: 'ORD-UCU-2026-003',
-      buyer_id: 7,
-      total_amount: 95000,
-      order_status: 'Completed',
-      payment_status: 'Paid',
-      payment_method: 'PayPal',
-      pickup_location: 'Nkoyoyo Hall Steps',
-      buyer_name: 'David Mukasa',
-      buyer_email: 'david.mukasa@ucu.ac.ug',
-      buyer_phone: '+256 786 554433',
-      notes: 'Will pay in cash upon inspecting the power bank.',
-      ready_for_pickup_date: '2026-11-17 15:30:00',
-      completed_date: '2026-11-17 17:00:00',
-      created_at: '2026-11-17 14:15:00',
-      updated_at: '2026-11-17 16:50:00'
-    }
-  ],
-  payments: [
-    {
-      id: 1,
-      order_id: 1,
-      transaction_ref: 'MTN-UG-982311',
-      amount: 45000,
-      currency: 'UGX',
-      payment_method: 'MTN Mobile Money',
-      phone_number: '+256 774 332211',
-      network_provider: 'MTN Uganda',
-      status: 'Successful',
-      paid_at: '2026-11-15 11:22:00'
-    },
-    {
-      id: 2,
-      order_id: 2,
-      transaction_ref: 'AIRTEL-UG-441290',
-      amount: 75000,
-      currency: 'UGX',
-      payment_method: 'Airtel Money',
-      phone_number: '+256 705 667788',
-      network_provider: 'Airtel Uganda',
-      status: 'Successful',
-      paid_at: '2026-11-16 10:08:00'
-    },
-    {
-      id: 3,
-      order_id: 3,
-      transaction_ref: 'PAYPAL-CAPT-781923',
-      amount: 95000,
-      currency: 'UGX',
-      payment_method: 'PayPal',
-      phone_number: '+256 786 554433',
-      network_provider: 'PayPal Sandbox',
-      status: 'Successful',
-      paid_at: '2026-11-17 14:18:00'
-    }
-  ],
-  email_notifications: [
-    {
-      id: 1,
-      order_id: 1,
-      recipient_email: 'brian.okello@ucu.ac.ug',
-      notification_type: 'READY_FOR_PICKUP',
-      delivery_status: 'Sent',
-      sent_date: '2026-11-15 14:00:15'
-    },
-    {
-      id: 2,
-      order_id: 2,
-      recipient_email: 'sarah.namubiru@ucu.ac.ug',
-      notification_type: 'READY_FOR_PICKUP',
-      delivery_status: 'Sent',
-      sent_date: '2026-11-16 11:30:20'
-    },
-    {
-      id: 3,
-      order_id: 3,
-      recipient_email: 'david.mukasa@ucu.ac.ug',
-      notification_type: 'READY_FOR_PICKUP',
-      delivery_status: 'Sent',
-      sent_date: '2026-11-17 15:30:10'
-    }
-  ],
-  order_items: [
-    { id: 1, order_id: 1, item_id: 1, seller_id: 2, price: 45000, quantity: 1 },
-    { id: 2, order_id: 2, item_id: 7, seller_id: 3, price: 75000, quantity: 1 },
-    { id: 3, order_id: 3, item_id: 8, seller_id: 4, price: 95000, quantity: 1 }
-  ],
-  reviews: [
-    {
-      id: 1,
-      order_id: 1,
-      buyer_id: 5,
-      seller_id: 2,
-      rating: 5,
-      comment: 'Great seller! The textbook was exactly as described and Grace met me promptly at the Hamu Mukasa Library.',
-      created_at: '2026-11-15 16:30:00'
-    },
-    {
-      id: 2,
-      order_id: 3,
-      buyer_id: 7,
-      seller_id: 4,
-      rating: 5,
-      comment: 'Fiona was very responsive. The Anker power bank is brand new and charges my phone super fast!',
-      created_at: '2026-11-17 17:10:00'
-    }
-  ],
-  cart: [
-    { id: 1, user_id: 5, created_at: '2026-11-18 10:00:00' },
-    { id: 2, user_id: 6, created_at: '2026-11-18 11:00:00' }
-  ],
-  cart_items: [
-    { id: 1, cart_id: 1, item_id: 6, quantity: 1 },
-    { id: 2, cart_id: 1, item_id: 17, quantity: 1 }
-  ]
+  items: [],
+  orders: [],
+  order_items: [],
+  payments: [],
+  email_notifications: [],
+  otp_verifications: [],
+  reviews: [],
+  cart: [],
+  cart_items: []
 };
+
+// Automatically purge any previous stored sessions and local state
+try {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const staleKeys = ['unitrade_campus_db', 'unitrade_campus_db_v2', 'unitrade_campus_db_v3', 'unitrade_campus_db_v3_clean'];
+    staleKeys.forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem('unitrade_token');
+  }
+} catch (e) {}
 
 function getStorage() {
   const existing = localStorage.getItem(STORAGE_KEY);
   if (!existing) {
+    localStorage.removeItem('unitrade_token');
     localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DATA));
     return JSON.parse(JSON.stringify(INITIAL_DATA));
   }
   try {
     return JSON.parse(existing);
   } catch (e) {
+    localStorage.removeItem('unitrade_token');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DATA));
     return JSON.parse(JSON.stringify(INITIAL_DATA));
   }
 }
@@ -1047,7 +619,7 @@ export const mockStorage = {
         totalSalesVolume: data.orders.reduce((sum, o) => sum + Number(o.total_amount), 0),
         totalEmailsSent: (data.email_notifications || []).length,
         totalReviews: data.reviews.length,
-        averageRating: 4.9
+        averageRating: data.reviews.length ? Number((data.reviews.reduce((sum, r) => sum + r.rating, 0) / data.reviews.length).toFixed(1)) : 0
       }
     };
   },
