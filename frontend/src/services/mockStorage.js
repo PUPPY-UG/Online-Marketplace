@@ -125,7 +125,7 @@ export const mockStorage = {
     if (!user || user.role !== 'admin') {
       throw new Error('Access restricted: Invalid administrator credentials.');
     }
-    if (password !== 'Admin@123' && password !== 'UniTrade@2026') {
+    if (password !== 'Rinah@2026') {
       throw new Error('Invalid administrator password.');
     }
     const fakeToken = btoa(JSON.stringify({ id: user.id, email: user.email, role: 'admin' }));
