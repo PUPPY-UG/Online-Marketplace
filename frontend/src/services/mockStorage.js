@@ -1,7 +1,7 @@
 // Client-Side Database & Mock Gateway for GitHub Pages Static Deployment
 // Automatically activates when running on puppy-ug.github.io
 
-const STORAGE_KEY = 'unitrade_campus_db_v4_clean';
+const STORAGE_KEY = 'unitrade_campus_db_v5_clean';
 
 const INITIAL_DATA = {
   users: [
@@ -30,7 +30,7 @@ const INITIAL_DATA = {
 // Automatically purge any previous stored sessions and local state
 try {
   if (typeof window !== 'undefined' && window.localStorage) {
-    const staleKeys = ['unitrade_campus_db', 'unitrade_campus_db_v2', 'unitrade_campus_db_v3', 'unitrade_campus_db_v3_clean'];
+    const staleKeys = ['unitrade_campus_db', 'unitrade_campus_db_v2', 'unitrade_campus_db_v3', 'unitrade_campus_db_v3_clean', 'unitrade_campus_db_v4_clean'];
     staleKeys.forEach(k => localStorage.removeItem(k));
     localStorage.removeItem('unitrade_token');
   }
